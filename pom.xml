@@ -47,9 +47,14 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-        <groupId>net.java.dev.jna</groupId>
-        <artifactId>jna-platform</artifactId>
-        <version>5.3.1</version>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna-platform</artifactId>
+      <version>5.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>io.micronaut.views</groupId>
+      <artifactId>micronaut-views-thymeleaf</artifactId>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.micronaut</groupId>
