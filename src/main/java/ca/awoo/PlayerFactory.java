@@ -12,7 +12,8 @@ public class PlayerFactory {
                 new PlayerOption("idle", "yes"),
                 new PlayerOption("force-window", "immediate"),
                 new PlayerOption("osc", "yes"),
-                new PlayerOption("auto-window-resize", "no")
+                new PlayerOption("auto-window-resize", "no"),
+                new PlayerOption("ytdl-raw-options", "cookies-from-browser=firefox")
                 );
         } catch (MpvException e) {
             // TODO Auto-generated catch block
