@@ -1,8 +1,11 @@
 package ca.awoo;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
+import jakarta.inject.Singleton;
+
+@Singleton
 public interface ThumbnailProvider {
-    public void getThumbnail(String source, File output) throws IOException;
+    public CompletableFuture<File> getThumbnail(String source);
 }
