@@ -4,15 +4,18 @@
         <title>
             Player
         </title>
+        <link rel="stylesheet" href="/static/style.css">
     </head>
     <body>
         <h1>Player</h1>
         <ol>
-            <li th:each="item,status : ${playlist}">
-                <a th:href="@{'/player/skipto/'+${status.index}}">
-                    <h2 th:text="${item.name}"></h2>
-                    <img th:src="@{/thumbnail.png(source=${item.source})}"/>
-                    <p th:text="${item.source}"></p>
+            <li class="playlist" th:each="item,status : ${playlist}">
+                <a class="video" th:href="@{'/player/skipto/'+${status.index}}">
+                    <img class="video-thumbnail" th:src="@{/thumbnail.png(source=${item.source})}"/>
+                    <div class="video-details">
+                        <h2 class="video-title" th:text="${item.name}"></h2>
+                        <p class="video-source" th:text="${item.source}"></p>
+                    </div>
                 </a>
             </li>
         </ol>

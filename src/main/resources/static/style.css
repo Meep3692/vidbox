@@ -1,0 +1,26 @@
+.playlist {
+    list-style-type: none;
+}
+
+.video {
+    display: flex;
+}
+
+.video-thumbnail{
+    height: 3em;
+    padding-right: 0.5em;
+}
+
+.video-details {
+    flex-grow: 1;
+}
+
+.video-title {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.video-source {
+    margin: 0;
+    font-size: 1em;
+}
