@@ -8,5 +8,6 @@ import jakarta.inject.Singleton;
 public interface Player {
     public void setOption(PlayerOption option);
     public void enqueue(String source);
-    public List<String> getPlaylist();
+    public void playIndex(int index);
+    public List<VideoInfo> getPlaylist();
 }

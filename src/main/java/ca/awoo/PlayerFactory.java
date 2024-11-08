@@ -11,7 +11,8 @@ public class PlayerFactory {
             return new MpvPlayer(
                 new PlayerOption("idle", "yes"),
                 new PlayerOption("force-window", "immediate"),
-                new PlayerOption("osc", "yes")
+                new PlayerOption("osc", "yes"),
+                new PlayerOption("auto-window-resize", "no")
                 );
         } catch (MpvException e) {
             // TODO Auto-generated catch block
