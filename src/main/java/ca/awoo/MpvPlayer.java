@@ -33,17 +33,24 @@ public class MpvPlayer implements Player {
             while(true){
                 MpvEvent event = waitEvent(10);
                 System.out.println(event);
-                if(event.equals(MpvEvent.MPV_EVENT_SHUTDOWN)){
-                    break;
-                }
-                if(event.equals(MpvEvent.MPV_EVENT_END_FILE)){
-                    position++;
-                    int playlistSize = getIntProperty("playlist-count");
-                    int current = getIntProperty("playlist-current-pos");
-                    if(current != position || playlistSize != playlist.size()){
-                        //Desync with MPV, pull new playlist
+                switch(event){
+                    case MPV_EVENT_SHUTDOWN:
+                        return;
+                    case MPV_EVENT_END_FILE:
+                        position++;
+                        int playlistSize = getIntProperty("playlist-count");
+                        int current = getIntProperty("playlist-current-pos");
+                        if(current != position || playlistSize != playlist.size()){
+                            //Desync with MPV, pull new playlist
+                            resyncPlaylist();
+                        }
+                        break;
+                    case MPV_EVENT_FILE_LOADED:
+                        //We should have new data at this point
                         resyncPlaylist();
-                    }
+                        break;
+                    default:
+                        break;
                 }
             }
         });
