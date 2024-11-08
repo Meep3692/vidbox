@@ -13,3 +13,4 @@ out/
 .settings
 .classpath
 .factorypath
+src/main/resources/win32-x86-64/lib/libmpv-2.dll
