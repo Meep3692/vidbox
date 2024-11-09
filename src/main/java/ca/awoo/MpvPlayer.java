@@ -3,8 +3,13 @@ package ca.awoo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
+import com.sun.jna.Native;
+import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.linux.LibC;
+import com.sun.jna.platform.unix.LibCAPI;
 
 import ca.awoo.MPV.mpv_event;
 
@@ -19,7 +24,10 @@ public class MpvPlayer implements Player {
 
     public MpvPlayer(PlayerOption... options) throws MpvException{
         this.mpv = MPV.INSTANCE;
+        if(Platform.isLinux())
+            CLib.INSTANCE.setlocale(CLib.LC_NUMERIC, "C");
         this.handle = mpv.mpv_create();
+        if(handle == 0) throw new RuntimeException("Cannot make MPV");
         for(PlayerOption option : options){
             setOption(option);
         }

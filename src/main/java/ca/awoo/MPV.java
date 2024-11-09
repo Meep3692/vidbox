@@ -1,8 +1,10 @@
 package ca.awoo;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -11,11 +13,11 @@ import com.sun.jna.win32.StdCallLibrary;
 /**
  * Interface to native mpv library
  */
-public interface MPV extends StdCallLibrary {
+public interface MPV extends Library {
     /**
      * Instance of mpv native library
      */
-    MPV INSTANCE = Native.load("lib/libmpv-2.dll", MPV.class);
+    MPV INSTANCE = Native.load("lib/libmpv.so", MPV.class, Collections.singletonMap(Library.OPTION_FUNCTION_MAPPER, StdCallLibrary.FUNCTION_MAPPER));
     
     /*
     * Event ID's
