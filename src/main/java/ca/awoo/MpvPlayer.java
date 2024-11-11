@@ -82,6 +82,9 @@ public class MpvPlayer implements Player {
             int current = getIntProperty("playlist-current-pos");
             for(int i = 0; i < playlistSize; i++){
                 String title = getProperty("playlist/" + i + "/title");
+                if(title == null){
+                    title = "Pending...";
+                }
                 String source = getProperty("playlist/" + i + "/filename");
                 playlist.add(new VideoInfo(title, source));
             }

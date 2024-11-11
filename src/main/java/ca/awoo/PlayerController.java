@@ -51,7 +51,7 @@ public class PlayerController {
         return HttpResponse.redirect(location);
     }
 
-    @Produces(MediaType.TEXT_HTML)
+    @Produces(MediaType.TEXT_HTML + ";charset=utf-8")
     @View("player.html")
     @Get
     public Map<String, List<VideoInfo>> index(){

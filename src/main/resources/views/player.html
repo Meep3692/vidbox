@@ -8,21 +8,27 @@
     </head>
     <body>
         <h1>Player</h1>
-        <ol>
-            <li class="playlist" th:each="item,status : ${playlist}">
-                <a class="video" th:href="@{'/player/skipto/'+${status.index}}">
-                    <img class="video-thumbnail" th:src="@{/thumbnail.png(source=${item.source})}"/>
-                    <div class="video-details">
-                        <h2 class="video-title" th:text="${item.name}"></h2>
-                        <p class="video-source" th:text="${item.source}"></p>
-                    </div>
-                </a>
-            </li>
-        </ol>
         <form action="/player/enqueue" method="post" enctype="application/json">
             <label for="source">Source</label>
             <input type="text" name="source">
             <input type="submit">
         </form>
+        <h2>Playlist</h2>
+        <ol>
+            <li class="playlist" th:each="item,status : ${playlist}">
+                <div class="video" >
+                    <div class="video-thumbnail-container">
+                        <img class="video-thumbnail" th:src="@{/thumbnail.png(source=${item.source})}"/>
+                    </div>
+                    <div class="video-details">
+                        <a th:href="@{'/player/skipto/'+${status.index}}">
+                            <h2 class="video-title" th:text="${item.name}"></h2>
+                        </a>
+                        <p class="video-source" th:text="${item.source}"></p>
+                    </div>
+                </div>
+            </li>
+        </ol>
+        
     </body>
 </html>

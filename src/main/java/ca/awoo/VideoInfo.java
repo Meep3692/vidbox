@@ -16,5 +16,10 @@ public class VideoInfo {
     public String getSource() {
         return source;
     }
+
+    @Override
+    public String toString() {
+        return "VideoInfo [name=" + name + ", source=" + source + "]";
+    }
     
 }
