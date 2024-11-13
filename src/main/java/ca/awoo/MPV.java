@@ -17,7 +17,7 @@ public interface MPV extends Library {
     /**
      * Instance of mpv native library
      */
-    MPV INSTANCE = Native.load("lib/libmpv.so", MPV.class, Collections.singletonMap(Library.OPTION_FUNCTION_MAPPER, StdCallLibrary.FUNCTION_MAPPER));
+    MPV INSTANCE = Native.load("lib/libmpv", MPV.class, Collections.singletonMap(Library.OPTION_FUNCTION_MAPPER, StdCallLibrary.FUNCTION_MAPPER));
     
     /*
     * Event ID's

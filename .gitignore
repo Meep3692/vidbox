@@ -13,5 +13,5 @@ out/
 .settings
 .classpath
 .factorypath
-src/main/resources/win32-x86-64/lib/libmpv-2.dll
-src/main/resources/linux-x86-64/lib/libmpv.so
+**.dll
+**.so
