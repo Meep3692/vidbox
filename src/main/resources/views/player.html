@@ -5,6 +5,7 @@
             Player
         </title>
         <link rel="stylesheet" href="/static/style.css">
+        
     </head>
     <body>
         <h1>Player</h1>
@@ -14,7 +15,7 @@
             <input type="submit">
         </form>
         <h2>Playlist</h2>
-        <ol>
+        <ol id="vidlist">
             <li class="playlist" th:each="item,status : ${playlist}">
                 <div class="video" >
                     <div class="video-thumbnail-container">
@@ -29,6 +30,38 @@
                 </div>
             </li>
         </ol>
-        
+        <template id="video-template">
+            <li class="playlist">
+                <div class="video">
+                    <div class="video-thumbnail-container">
+                        <img class="video-thumbnail" src="/thumbnail.png?source=$source"/>
+                    </div>
+                    <div class="video-details">
+                        <a href="/player/skipto/$index">
+                            <h2 class="video-title">$name</h2>
+                        </a>
+                        <p class="video-source">
+                            $source
+                        </p>
+                    </div>
+                </div>
+            </li>
+        </template>
+        <script>
+            let vidlist = document.getElementById("vidlist");
+            let webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/clicker");
+            const template = document.getElementById("video-template");
+            webSocket.onmessage = (msg) => {
+                let data = JSON.parse(msg.data);
+                vidlist.innerHTML = "";
+                for(let i = 0; i < data.playlist.length; i++){
+                    let video = data.playlist[i];
+                    let clone = template.content.firstElementChild.cloneNode(true);
+                    clone.innerHTML = clone.innerHTML.replaceAll("$source", video.source).replaceAll("$name", video.name).replaceAll("$index", i);
+                    vidlist.append(clone);
+                }
+            };
+            
+        </script>
     </body>
 </html>

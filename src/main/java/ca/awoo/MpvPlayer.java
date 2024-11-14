@@ -1,24 +1,16 @@
 package ca.awoo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
+import java.util.function.Consumer;
 
-import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
-import com.sun.jna.platform.linux.LibC;
-import com.sun.jna.platform.unix.LibCAPI;
-
 import ca.awoo.MPV.mpv_event;
 
 public class MpvPlayer implements Player {
     private final MPV mpv;
     private final long handle;
-
-    private List<VideoInfo> playlist;
-    private int position = 0;
 
     private Thread listenThread;
 
@@ -36,7 +28,6 @@ public class MpvPlayer implements Player {
         if(error != 0){
             throw new MpvException(error, "Failed to initialize player");
         }
-        playlist = Collections.synchronizedList(new ArrayList<>());
         listenThread = new Thread(() -> {
             while(true){
                 MpvEvent event = waitEvent(10);
@@ -45,17 +36,10 @@ public class MpvPlayer implements Player {
                     case MPV_EVENT_SHUTDOWN:
                         return;
                     case MPV_EVENT_END_FILE:
-                        position++;
-                        int playlistSize = getIntProperty("playlist-count");
-                        int current = getIntProperty("playlist-current-pos");
-                        if(current != position || playlistSize != playlist.size()){
-                            //Desync with MPV, pull new playlist
-                            resyncPlaylist();
-                        }
+                        notifyChange();
                         break;
                     case MPV_EVENT_FILE_LOADED:
-                        //We should have new data at this point
-                        resyncPlaylist();
+                        notifyChange();
                         break;
                     default:
                         break;
@@ -75,21 +59,12 @@ public class MpvPlayer implements Player {
         return Integer.parseInt(getProperty(name));
     }
 
-    private void resyncPlaylist(){
-        synchronized(this){
-            playlist.clear();
-            int playlistSize = getIntProperty("playlist-count");
-            int current = getIntProperty("playlist-current-pos");
-            for(int i = 0; i < playlistSize; i++){
-                String title = getProperty("playlist/" + i + "/title");
-                if(title == null){
-                    title = "Pending...";
-                }
-                String source = getProperty("playlist/" + i + "/filename");
-                playlist.add(new VideoInfo(title, source));
-            }
-            position = current;
-        }
+    public int playlistPos(){
+        return getIntProperty("playlist-current-pos");
+    }
+
+    public int playlistSize(){
+        return getIntProperty("playlist-count");
     }
 
     private MpvEvent waitEvent(double timeout){
@@ -116,12 +91,22 @@ public class MpvPlayer implements Player {
             if(error != 0){
                 throw new RuntimeException("oops");
             }
-            resyncPlaylist();
+            notifyChange();
         }
     }
 
     @Override
     public List<VideoInfo> getPlaylist() {
+        List<VideoInfo> playlist = new ArrayList<>(playlistSize());
+        int playlistSize = getIntProperty("playlist-count");
+        for(int i = 0; i < playlistSize; i++){
+            String title = getProperty("playlist/" + i + "/title");
+            if(title == null){
+                title = "Pending...";
+            }
+            String source = getProperty("playlist/" + i + "/filename");
+            playlist.add(new VideoInfo(title, source));
+        }
         return playlist;
     }
 
@@ -131,7 +116,24 @@ public class MpvPlayer implements Player {
         if(error != 0){
             throw new RuntimeException("oops");
         }
-        position = index;
+    }
+    
+
+    private Consumer<PlayerState> changeListener;
+
+    public void onChange(Consumer<PlayerState> listener){
+        this.changeListener = listener;
+    }
+
+    private void notifyChange(){
+        if(changeListener != null){
+            changeListener.accept(getState());
+        }
+    }
+
+    @Override
+    public PlayerState getState() {
+        return new PlayerState(getPlaylist(), playlistPos());
     }
     
 }

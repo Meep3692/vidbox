@@ -1,5 +1,8 @@
 package ca.awoo;
 
+import io.micronaut.serde.annotation.Serdeable;
+
+@Serdeable
 public class VideoInfo {
     private final String name;
     private final String source;
