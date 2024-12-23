@@ -1,5 +1,14 @@
+#vidlist{
+    padding-left:0;
+}
+
 .playlist {
     list-style-type: none;
+    background-color: antiquewhite;
+    padding:5px;
+    border-radius: 5px;
+    border: 1px solid rgb(253, 217, 169);
+    margin-bottom:5px;
 }
 
 .video {
@@ -40,4 +49,9 @@
     font-size: 1em;
     text-overflow: ellipsis;
     overflow:hidden;
+}
+
+.playing {
+    background-color:aliceblue;
+    border-color:#b5dbfc;
 }

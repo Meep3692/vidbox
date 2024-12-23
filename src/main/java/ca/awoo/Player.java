@@ -13,4 +13,10 @@ public interface Player {
     public List<VideoInfo> getPlaylist();
     public void onChange(Consumer<PlayerState> listener);
     public PlayerState getState();
+    public PlayerState getStateWithoutPlaylist();
+    public void prev();
+    public void pause();
+    public void play();
+    public void next();
+    public void seek(double pos);
 }

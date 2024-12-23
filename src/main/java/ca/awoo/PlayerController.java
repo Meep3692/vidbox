@@ -54,7 +54,7 @@ public class PlayerController {
     @Produces(MediaType.TEXT_HTML + ";charset=utf-8")
     @View("player.html")
     @Get
-    public Map<String, List<VideoInfo>> index(){
-        return Collections.singletonMap("playlist", player.getPlaylist());
+    public PlayerState index(){
+        return player.getState();
     }
 }

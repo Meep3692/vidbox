@@ -14,6 +14,10 @@
             <input type="text" name="source">
             <input type="submit">
         </form>
+        <input id="seekbar" onchange="seek()" type="range" min="0" max="100" value="0"><br>
+        <button onclick="prev()">Prev</button>
+        <button id="pauseButton" onclick="pause()">Pause</button>
+        <button onclick="next()">Next</button>
         <h2>Playlist</h2>
         <ol id="vidlist">
             <li class="playlist" th:each="item,status : ${playlist}">
@@ -50,17 +54,49 @@
         <script>
             let vidlist = document.getElementById("vidlist");
             let webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/clicker");
+            let paused = false;
+            const seekbar = document.getElementById("seekbar");
             const template = document.getElementById("video-template");
             webSocket.onmessage = (msg) => {
                 let data = JSON.parse(msg.data);
-                vidlist.innerHTML = "";
-                for(let i = 0; i < data.playlist.length; i++){
-                    let video = data.playlist[i];
-                    let clone = template.content.firstElementChild.cloneNode(true);
-                    clone.innerHTML = clone.innerHTML.replaceAll("$source", video.source).replaceAll("$name", video.name).replaceAll("$index", i);
-                    vidlist.append(clone);
+                //console.log(data);
+                if(data.playlist){
+                    vidlist.innerHTML = "";
+                    for(let i = 0; i < data.playlist.length; i++){
+                        let video = data.playlist[i];
+                        let clone = template.content.firstElementChild.cloneNode(true);
+                        clone.innerHTML = clone.innerHTML.replaceAll("$source", video.source).replaceAll("$name", video.name).replaceAll("$index", i);
+                        if(i == data.playing){
+                            clone.classList.add("playing");
+                        }
+                        vidlist.append(clone);
+                    }
                 }
+                document.getElementById("pauseButton").innerText = data.paused ? "Play" : "Pause";
+                paused = data.paused;
+                seekbar.max = data.playingLength;
+                seekbar.value = data.playingPosition;
             };
+
+            function prev(){
+                webSocket.send("prev");
+            }
+
+            function next(){
+                webSocket.send("next");
+            }
+
+            function pause(){
+                if(paused){
+                    webSocket.send("play");
+                }else{
+                    webSocket.send("pause");
+                }
+            }
+
+            function seek(){
+                webSocket.send("seek" + seekbar.value);
+            }
             
         </script>
     </body>

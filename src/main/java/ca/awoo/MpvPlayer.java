@@ -35,18 +35,20 @@ public class MpvPlayer implements Player {
                 switch(event){
                     case MPV_EVENT_SHUTDOWN:
                         return;
-                    case MPV_EVENT_END_FILE:
-                        notifyChange();
-                        break;
-                    case MPV_EVENT_FILE_LOADED:
-                        notifyChange();
-                        break;
                     default:
+                        notifyChange();
                         break;
                 }
             }
         });
         listenThread.start();
+    }
+
+    private void command(String... command){
+        int error = mpv.mpv_command(handle, command);
+        if(error != 0){
+            throw new RuntimeException("oops: " + error);
+        }
     }
 
     private String getProperty(String name){
@@ -59,12 +61,38 @@ public class MpvPlayer implements Player {
         return Integer.parseInt(getProperty(name));
     }
 
+    private double getDoubleProperty(String name){
+        return Double.parseDouble(getProperty(name));
+    }
+
+    private boolean getBoolProperty(String name){
+        String prop = getProperty(name);
+        if(prop.equals("yes")){
+            return true;
+        }else if(prop.equals("no")){
+            return false;
+        }else{
+            throw new RuntimeException("Unexpected bool: " + prop);
+        }
+    }
+
+    private void setProperty(String name, String value){
+        int error = mpv.mpv_set_property_string(handle, name, value);
+        if(error != 0){
+            throw new RuntimeException("oops: " + error);
+        }
+    }
+
     public int playlistPos(){
         return getIntProperty("playlist-current-pos");
     }
 
     public int playlistSize(){
         return getIntProperty("playlist-count");
+    }
+
+    public boolean isPaused(){
+        return getBoolProperty("pause");
     }
 
     private MpvEvent waitEvent(double timeout){
@@ -87,10 +115,7 @@ public class MpvPlayer implements Player {
     @Override
     public void enqueue(String source) {
         synchronized(this){
-            int error = mpv.mpv_command(handle, new String[]{"loadfile", source, "append-play"});
-            if(error != 0){
-                throw new RuntimeException("oops");
-            }
+            command("loadfile", source, "append-play");
             notifyChange();
         }
     }
@@ -112,12 +137,59 @@ public class MpvPlayer implements Player {
 
     @Override
     public void playIndex(int index) {
-        int error = mpv.mpv_command(handle, new String[]{"playlist-play-index", Integer.toString(index)});
-        if(error != 0){
-            throw new RuntimeException("oops");
-        }
+        command("playlist-play-index", Integer.toString(index));
     }
-    
+
+    public double playingLength(){
+        String prop = getProperty("duration/full");
+        if(prop == null) return 0;
+        return getDoubleProperty("duration/full");
+    }
+
+    public double playingPosition(){
+        String prop = getProperty("time-pos/full");
+        if(prop == null) return 0;
+        return getDoubleProperty("time-pos/full");
+    }
+
+    @Override
+    public PlayerState getState() {
+        return new PlayerState(getPlaylist(), playlistPos(), isPaused(), playingLength(), playingPosition());
+    }
+
+    @Override
+    public PlayerState getStateWithoutPlaylist(){
+        return new PlayerState(null, playlistPos(), isPaused(), playingLength(), playingPosition());
+    }
+
+    @Override
+    public void prev() {
+        command("playlist-prev");
+        notifyChange();
+    }
+
+    @Override
+    public void pause() {
+        setProperty("pause", "yes");
+        notifyChange();
+    }
+
+    @Override
+    public void play() {
+        setProperty("pause", "no");
+        notifyChange();
+    }
+
+    @Override
+    public void next() {
+        command("playlist-next");
+        notifyChange();
+    }
+
+    @Override
+    public void seek(double pos){
+        command("seek", Double.toString(pos), "absolute");
+    }
 
     private Consumer<PlayerState> changeListener;
 
@@ -130,10 +202,4 @@ public class MpvPlayer implements Player {
             changeListener.accept(getState());
         }
     }
-
-    @Override
-    public PlayerState getState() {
-        return new PlayerState(getPlaylist(), playlistPos());
-    }
-    
 }

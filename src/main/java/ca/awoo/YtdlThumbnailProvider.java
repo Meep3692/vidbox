@@ -100,6 +100,10 @@ public class YtdlThumbnailProvider implements ThumbnailProvider {
 
     @Override
     public CompletableFuture<File> getThumbnail(String source) {
+        if(source.equals("$source")){
+            //Browsers are always asking for a beautiful girl called $source
+            return CompletableFuture.failedFuture(new Exception("Asking for $source again, are we?"));
+        }
         File dest = getThumbnailLocationExt(source);
         if(dest.exists()){
             return CompletableFuture.completedFuture(dest);
