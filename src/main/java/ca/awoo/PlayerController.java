@@ -44,13 +44,13 @@ public class PlayerController {
     public HttpResponse<Void> skipTo(@PathVariable Integer index) throws URISyntaxException{
         player.playIndex(index);
         URI location = new URI("/player");
-        return HttpResponse.redirect(location);
+        return HttpResponse.temporaryRedirect(location);
     }
 
     @Produces(MediaType.TEXT_HTML + ";charset=utf-8")
     @View("player.html")
     @Get
-    public PlayerState index(){
-        return player.getState();
+    public HttpResponse<PlayerState> index(){
+        return HttpResponse.ok(player.getState()).header("Cache-Control", "no-store");
     }
 }

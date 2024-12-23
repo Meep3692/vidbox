@@ -7,9 +7,9 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public interface Player {
-    public void setOption(PlayerOption option);
-    public void enqueue(String source);
-    public void playIndex(int index);
+    public void setProperty(PlayerOption option) throws MpvException;
+    public void enqueue(String source) throws MpvException;
+    public void playIndex(int index) throws MpvException;
     public List<VideoInfo> getPlaylist();
     public void onChange(Consumer<PlayerState> listener);
     public PlayerState getState();
@@ -19,4 +19,5 @@ public interface Player {
     public void play();
     public void next();
     public void seek(double pos);
+    public void seekRelative(double pos);
 }

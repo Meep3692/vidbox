@@ -43,6 +43,12 @@ public class PlayerSocket {
             case "pause":
                 player.pause();
                 break;
+            case "skipBack":
+                player.seekRelative(-5);
+                break;
+            case "skipForward":
+                player.seekRelative(5);
+                break;
         }
         if(message.startsWith("seek")){
             double seekPos = Double.parseDouble(message.substring(4));

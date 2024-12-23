@@ -1,13 +1,21 @@
 package ca.awoo;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import ca.awoo.MPV.mpv_event;
+import io.micronaut.runtime.server.EmbeddedServer;
 
 public class MpvPlayer implements Player {
     private final MPV mpv;
@@ -17,7 +25,7 @@ public class MpvPlayer implements Player {
 
     private TitleProvider titleProvider;
 
-    public MpvPlayer(TitleProvider titleProvider, PlayerOption... options) throws MpvException{
+    public MpvPlayer(EmbeddedServer embeddedServer, TitleProvider titleProvider, PlayerOption... options) throws MpvException{
         this.titleProvider = titleProvider;
         this.mpv = MPV.INSTANCE;
         if(Platform.isLinux())
@@ -25,8 +33,54 @@ public class MpvPlayer implements Player {
         this.handle = mpv.mpv_create();
         if(handle == 0) throw new RuntimeException("Cannot make MPV");
         for(PlayerOption option : options){
-            setOption(option);
+            if(option.option()){
+                setOption(option);
+            }else{
+                setProperty(option);
+            }
         }
+
+        try {
+            InetAddress localhost = InetAddress.getLocalHost();
+            InetAddress[] addresses = InetAddress.getAllByName(localhost.getCanonicalHostName());
+            Map<InetAddress, Integer> addressScores = new HashMap<>();
+            for(InetAddress address : addresses){
+                int score = 0;
+                byte[] bparts = address.getAddress();
+                short[] parts = new short[bparts.length];
+                for(int i = 0; i < bparts.length; i++){
+                    if(bparts[i] < 0){
+                        parts[i] = (short) (bparts[i] + 256);
+                    }else{
+                        parts[i] = bparts[i];
+                    }
+                }
+                System.out.println(Arrays.toString(parts));
+                if(parts[0] == 10){
+                    score += 4;
+                }
+                if(parts[0] == 192){
+                    score++;
+                    if(parts[1] == 168){
+                        score++;
+                        for(int i = 7; i >= 0; i--){
+                            if((parts[2] & (1 << i)) == 0){
+                                score++;
+                            }
+                        }
+                    }
+                }
+                addressScores.put(address, score);
+            }
+            for(Entry<InetAddress, Integer> entry : addressScores.entrySet()){
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+            InetAddress address = addressScores.entrySet().stream().sorted((e1, e2) -> e1.getValue() - e2.getValue()).findFirst().get().getKey();
+            setProperty("osd-msg1", "http://" + address.getHostName() + ":" + embeddedServer.getPort() + "/player");
+        } catch (UnknownHostException e) {
+            //wat
+        }
+
         int error;
         error = mpv.mpv_initialize(handle);
         if(error != 0){
@@ -48,10 +102,10 @@ public class MpvPlayer implements Player {
         listenThread.start();
     }
 
-    private void command(String... command){
+    private void command(String... command) throws MpvException{
         int error = mpv.mpv_command(handle, command);
         if(error != 0){
-            throw new RuntimeException("oops: " + error);
+            throw new MpvException(error);
         }
     }
 
@@ -106,12 +160,22 @@ public class MpvPlayer implements Player {
     }
 
     @Override
-    public void setOption(PlayerOption option) {
+    public void setProperty(PlayerOption option) throws MpvException{
         synchronized(this){
             int error = mpv.mpv_set_property_string(handle, option.name(), option.value());
             if(error != 0){
                 //TODO: not this
-                throw new RuntimeException("oops");
+                throw new MpvException(error);
+            }
+        }
+    }
+
+    private void setOption(PlayerOption option) throws MpvException{
+        synchronized(this){
+            int error = mpv.mpv_set_option_string(handle, option.name(), option.value());
+            if(error != 0){
+                //TODO: not this
+                throw new MpvException(error);
             }
         }
     }
@@ -170,7 +234,11 @@ public class MpvPlayer implements Player {
 
     @Override
     public void prev() {
-        command("playlist-prev");
+        try{
+            command("playlist-prev");
+        }catch(MpvException e){
+            
+        }
         notifyChange();
     }
 
@@ -188,13 +256,22 @@ public class MpvPlayer implements Player {
 
     @Override
     public void next() {
-        command("playlist-next");
+        try{
+            command("playlist-next");
+        }catch(MpvException e){
+
+        }
         notifyChange();
     }
 
     @Override
     public void seek(double pos){
         command("seek", Double.toString(pos), "absolute");
+    }
+
+    @Override
+    public void seekRelative(double pos){
+        command("seek", Double.toString(pos), "relative");
     }
 
     private Consumer<PlayerState> changeListener;
@@ -207,5 +284,6 @@ public class MpvPlayer implements Player {
         if(changeListener != null){
             changeListener.accept(getState());
         }
+        setProperty("osd-level", playlistPos() < 0 ? "1" : "0");
     }
 }

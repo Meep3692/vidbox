@@ -5,7 +5,7 @@
             Player
         </title>
         <link rel="stylesheet" href="/static/style.css">
-        
+        <meta name="viewport" content="width=device-width, initial-scale=1"
     </head>
     <body>
         <h1>Player</h1>
@@ -15,9 +15,11 @@
             <input type="submit" value="Add to queue">
         </form>
         <input id="seekbar" onchange="seek()" type="range" min="0" max="100" value="0"><br>
-        <button onclick="prev()">Prev</button>
-        <button id="pauseButton" onclick="pause()">Pause</button>
-        <button onclick="next()">Next</button>
+        <button class="playback-controls" onclick="prev()">Prev</button>
+        <button class="playback-controls" onclick="skipBack()">&lt;5</button>
+        <button class="playback-controls" id="pauseButton" onclick="pause()">Pause</button>
+        <button class="playback-controls" onclick="skipForward()">&gt;5</button>
+        <button class="playback-controls" onclick="next()">Next</button>
         <h2>Playlist</h2>
         <ol id="vidlist">
             <li class="playlist" th:each="item,status : ${playlist}">
@@ -84,6 +86,14 @@
 
             function next(){
                 webSocket.send("next");
+            }
+
+            function skipBack(){
+                webSocket.send("skipBack");
+            }
+
+            function skipForward(){
+                webSocket.send("skipForward");
             }
 
             function pause(){

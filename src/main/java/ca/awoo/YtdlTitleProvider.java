@@ -2,6 +2,7 @@ package ca.awoo;
 
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,9 +41,9 @@ public class YtdlTitleProvider implements TitleProvider {
                 Job job = jobs.take();
                 try {
                     Process proc = download(job.source);
-                    waiter.submit(() -> {
+                    //waiter.submit(() -> {
                         try {
-                            String title = proc.inputReader().readLine();
+                            String title = proc.inputReader(Charset.forName("utf-8")).readLine();
                             cache.put(job.source, title);
                             System.out.println("Got title for " + job.source + ": " + title);
                             job.future.complete(title);
@@ -50,7 +51,7 @@ public class YtdlTitleProvider implements TitleProvider {
                             job.future.completeExceptionally(e);
                             return;
                         }
-                    });
+                    //});
                 } catch (IOException e) {
                     e.printStackTrace();
                     job.future.completeExceptionally(e);

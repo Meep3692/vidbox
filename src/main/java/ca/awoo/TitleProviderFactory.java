@@ -7,6 +7,6 @@ import io.micronaut.context.annotation.Factory;
 public class TitleProviderFactory {
     @Bean
     public TitleProvider ytdlTitleProvider(){
-        return new YtdlTitleProvider("yt-dlp", "--cookies-from-browser", "firefox");
+        return new YtdlTitleProvider("yt-dlp", "--cookies-from-browser", "firefox", "--encoding", "utf-8");
     }
 }

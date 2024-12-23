@@ -55,3 +55,10 @@
     background-color:aliceblue;
     border-color:#b5dbfc;
 }
+
+@media (pointer:coarse) {
+    .playback-controls {
+        height:    4em;
+        min-width: 4em;
+    }
+}
