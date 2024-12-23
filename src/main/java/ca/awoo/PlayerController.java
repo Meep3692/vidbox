@@ -10,10 +10,6 @@ import io.micronaut.views.View;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 

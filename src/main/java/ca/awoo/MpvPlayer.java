@@ -2,6 +2,7 @@ package ca.awoo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import com.sun.jna.Platform;
@@ -14,7 +15,10 @@ public class MpvPlayer implements Player {
 
     private Thread listenThread;
 
-    public MpvPlayer(PlayerOption... options) throws MpvException{
+    private TitleProvider titleProvider;
+
+    public MpvPlayer(TitleProvider titleProvider, PlayerOption... options) throws MpvException{
+        this.titleProvider = titleProvider;
         this.mpv = MPV.INSTANCE;
         if(Platform.isLinux())
             CLib.INSTANCE.setlocale(CLib.LC_NUMERIC, "C");
@@ -126,10 +130,12 @@ public class MpvPlayer implements Player {
         int playlistSize = getIntProperty("playlist-count");
         for(int i = 0; i < playlistSize; i++){
             String title = getProperty("playlist/" + i + "/title");
-            if(title == null){
-                title = "Pending...";
-            }
             String source = getProperty("playlist/" + i + "/filename");
+            if(title == null){
+                CompletableFuture<String> titleFuture = titleProvider.getTitle(source);
+                //Cheeky cheeky, we're not going to bother waiting, we'll get it from cache on the next pass anyways
+                title = titleFuture.getNow("Pending...");
+            }
             playlist.add(new VideoInfo(title, source));
         }
         return playlist;
