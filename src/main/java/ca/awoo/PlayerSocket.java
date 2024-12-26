@@ -18,7 +18,7 @@ public class PlayerSocket {
         player.onChange((state) -> broadcaster.broadcastSync(state));
     }
 
-    @Scheduled(fixedDelay = "1s")
+    @Scheduled(fixedDelay = "500ms")
     void updateTime(){
         broadcaster.broadcastSync(player.getStateWithoutPlaylist());
     }

@@ -11,6 +11,8 @@ public interface Player {
     public void enqueue(String source) throws MpvException;
     public void playIndex(int index) throws MpvException;
     public List<VideoInfo> getPlaylist();
+    public VideoInfo nowPlaying();
+    public double playingPosition();
     public void onChange(Consumer<PlayerState> listener);
     public PlayerState getState();
     public PlayerState getStateWithoutPlaylist();
@@ -22,4 +24,5 @@ public interface Player {
     public void seekRelative(double pos);
     public void setQuality(int scan);
     public void subtitles(boolean on);
+    public void toast(String message);
 }

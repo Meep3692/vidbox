@@ -216,6 +216,14 @@ public class MpvPlayer implements Player {
     }
 
     @Override
+    public VideoInfo nowPlaying() {
+        String title = getProperty("media-title");
+        String source = getProperty("path");
+        if(source == null) return null;
+        return new VideoInfo(title, source);
+    }
+
+    @Override
     public void playIndex(int index) {
         command("playlist-play-index", Integer.toString(index));
     }
@@ -226,6 +234,7 @@ public class MpvPlayer implements Player {
         return getDoubleProperty("duration/full");
     }
 
+    @Override
     public double playingPosition(){
         String prop = getProperty("time-pos/full");
         if(prop == null) return 0;
@@ -328,5 +337,10 @@ public class MpvPlayer implements Player {
             changeListener.accept(getState());
         }
         setProperty("osd-level", playlistPos() < 0 ? "1" : "0");
+    }
+
+    @Override
+    public void toast(String message) {
+        command("show-text", message, Integer.toString(-1), Integer.toString(0));
     }
 }
