@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.client.HttpClient;
@@ -30,6 +29,6 @@ public class EnqueueTest {
 
         assertNotNull(body);
         assertEquals("https://www.youtube.com/watch?v=wTuhDxQk5fI", body);
-        assertTrue(player.getPlaylist().contains(body));
+        assertTrue(player.getPlaylist().get(0).getSource().equals("https://www.youtube.com/watch?v=wTuhDxQk5fI"));
     }
 }

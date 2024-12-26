@@ -1,6 +1,5 @@
 package ca.awoo;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
