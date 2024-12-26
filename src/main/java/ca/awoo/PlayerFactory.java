@@ -21,7 +21,9 @@ public class PlayerFactory {
             new PlayerOption("input-default-bindings", "yes"),
             new PlayerOption("input-builtin-bindings", "yes"),
             new PlayerOption("auto-window-resize", "no"),
-            new PlayerOption("ytdl-raw-options", "cookies-from-browser=firefox"),
+            new PlayerOption("slang", "en"),
+            new PlayerOption("sub-auto", "fuzzy"),
+            new PlayerOption("ytdl-raw-options", "cookies-from-browser=firefox,sub-langs=\"en,en-US\",write-subs=,write-auto-subs="),
             new PlayerOption("ytdl-format", "bv*[height<=480]+ba/b[height<=480]/bv+ba/b")
             );
     }

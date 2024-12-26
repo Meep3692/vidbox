@@ -34,6 +34,7 @@
             <button class="playback-controls" id="skipForwardButton" onclick="skipForward()">Seek forward</button>
             <button class="playback-controls" id="nextButton"        onclick="next()"       >Next</button>
             <button class="playback-controls" id="stopButton"        onclick="stop()"       >Stop</button>
+            <button class="playback-controls" id="subsButton"        onclick="subs()"       >Subtitles off</button>
         </div><input id="seekbar" onchange="seek()" label="Seek bar" type="range" min="0" max="100" value="0">
         <h2>Playlist</h2>
         <form id="queue-form" action="/player/enqueue" method="post" enctype="application/json">
@@ -77,10 +78,12 @@
             let vidlist = document.getElementById("vidlist");
             let webSocket;
             let paused = false;
-            const seekbar = document.getElementById("seekbar");
+            let subson = false;
+            const seekbar        = document.getElementById("seekbar");
             const qualitySetting = document.getElementById("quality-setting");
-            const template = document.getElementById("video-template");
-            const pauseButton = document.getElementById("pauseButton");
+            const template       = document.getElementById("video-template");
+            const pauseButton    = document.getElementById("pauseButton");
+            const subsButton     = document.getElementById("subsButton");
 
             function reopenSocket(){
                 if(webSocket && webSocket.readyState == WebSocket.OPEN){
@@ -105,6 +108,9 @@
                     pauseButton.innerText = data.paused ? "Play" : "Pause";
                     pauseButton.setAttribute("paused", data.paused);
                     paused = data.paused;
+                    subsButton.innerText = data.subs ? "Subtitles on" : "Subtitles off";
+                    subsButton.setAttribute("subs", data.subs);
+                    subson = data.subs;
                     seekbar.max = data.playingLength;
                     seekbar.value = data.playingPosition;
                     qualitySetting.value = data.quality;
@@ -156,6 +162,13 @@
                 reopenSocket();
                 webSocket.send("q"+qualitySetting.value);
             }
+
+            function subs(){
+                reopenSocket();
+                webSocket.send(subson ? "subsOff" : "subsOn");
+            }
+
+            window.setInterval(reopenSocket, 1000);
             
         </script>
     </body>

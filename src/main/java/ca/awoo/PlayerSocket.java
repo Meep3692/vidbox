@@ -52,6 +52,12 @@ public class PlayerSocket {
             case "stop":
                 player.playIndex(-1);
                 break;
+            case "subsOn":
+                player.subtitles(true);
+                break;
+            case "subsOff":
+                player.subtitles(false);
+                break;
         }
         if(message.startsWith("seek")){
             double seekPos = Double.parseDouble(message.substring(4));

@@ -232,14 +232,20 @@ public class MpvPlayer implements Player {
         return getDoubleProperty("time-pos/full");
     }
 
+    public boolean getSubtitles(){
+        String prop = getProperty("sid");
+        if(prop == null) return false;
+        return !prop.equals("no");
+    }
+
     @Override
     public PlayerState getState() {
-        return new PlayerState(getPlaylist(), playlistPos(), isPaused(), playingLength(), playingPosition(), quality);
+        return new PlayerState(getPlaylist(), playlistPos(), isPaused(), playingLength(), playingPosition(), quality, getSubtitles());
     }
 
     @Override
     public PlayerState getStateWithoutPlaylist(){
-        return new PlayerState(null, playlistPos(), isPaused(), playingLength(), playingPosition(), quality);
+        return new PlayerState(null, playlistPos(), isPaused(), playingLength(), playingPosition(), quality, getSubtitles());
     }
 
     @Override
@@ -303,6 +309,12 @@ public class MpvPlayer implements Player {
         System.out.println(format);
         setProperty("ytdl-format", format);
         standingReload();
+    }
+
+    @Override
+    public void subtitles(boolean on){
+        setProperty("sid", on ? "auto" : "no");
+        notifyChange();
     }
 
     private Consumer<PlayerState> changeListener;

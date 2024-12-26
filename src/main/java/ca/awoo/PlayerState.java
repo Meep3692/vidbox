@@ -12,15 +12,17 @@ public class PlayerState {
     public final double playingLength;
     public final double playingPosition;
     public final int quality;
+    public final boolean subs;
     
     public PlayerState(List<VideoInfo> playlist, int playing, boolean paused, double playingLength,
-            double playingPosition, int quality) {
+            double playingPosition, int quality, boolean subs) {
         this.playlist = playlist;
         this.playing = playing;
         this.paused = paused;
         this.playingLength = playingLength;
         this.playingPosition = playingPosition;
         this.quality = quality;
+        this.subs = subs;
     }
     public List<VideoInfo> getPlaylist() {
         return playlist;
@@ -39,5 +41,8 @@ public class PlayerState {
     }
     public int getQuality(){
         return quality;
+    }
+    public boolean getSubs(){
+        return subs;
     }
 }

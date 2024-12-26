@@ -160,3 +160,11 @@
 #stopButton {
     background-image: url("/static/media-playback-stop.png");
 }
+
+#subsButton {
+    background-image: url("/static/media-subtitle.png");
+}
+
+#subsButton[subs="true"] {
+    background-image: url("/static/media-subtitle-filled.png");
+}
