@@ -11,10 +11,14 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import ca.awoo.MPV.mpv_event;
 import io.micronaut.runtime.server.EmbeddedServer;
+import io.micronaut.scheduling.annotation.Scheduled;
 
 public class MpvPlayer implements Player {
     private final MPV mpv;
@@ -26,6 +30,8 @@ public class MpvPlayer implements Player {
     private int quality = 480;
 
     private double loadseek = 0;
+
+    private static final Logger LOG = LoggerFactory.getLogger(MpvPlayer.class);
 
     public MpvPlayer(EmbeddedServer embeddedServer, TitleProvider titleProvider, PlayerOption... options) throws MpvException{
         this.titleProvider = titleProvider;
@@ -57,7 +63,6 @@ public class MpvPlayer implements Player {
                         parts[i] = bparts[i];
                     }
                 }
-                System.out.println(Arrays.toString(parts));
                 if(parts[0] == 10){
                     score += 4;
                 }
@@ -75,7 +80,7 @@ public class MpvPlayer implements Player {
                 addressScores.put(address, score);
             }
             for(Entry<InetAddress, Integer> entry : addressScores.entrySet()){
-                System.out.println(entry.getKey() + ": " + entry.getValue());
+                LOG.debug(entry.getKey() + ": " + entry.getValue());
             }
             InetAddress address = addressScores.entrySet().stream().sorted((e1, e2) -> e1.getValue() - e2.getValue()).findFirst().get().getKey();
             setProperty("osd-msg1", "http://" + address.getHostName() + ":" + embeddedServer.getPort() + "/player");
@@ -91,7 +96,7 @@ public class MpvPlayer implements Player {
         listenThread = new Thread(() -> {
             while(true){
                 MpvEvent event = waitEvent(10);
-                System.out.println(event);
+                LOG.debug(event.toString());
                 switch(event){
                     case MPV_EVENT_SHUTDOWN:
                         return;
@@ -104,6 +109,7 @@ public class MpvPlayer implements Player {
                         notifyChange();
                         break;
                 }
+                cleanPlaylist();
             }
         });
         listenThread.start();
@@ -207,7 +213,7 @@ public class MpvPlayer implements Player {
                 //Cheeky cheeky, we're not going to bother waiting, we'll get it from cache on the next pass anyways
                 title = titleFuture.getNow("Pending...");
                 if(title == null){
-                    System.out.println(source + " has no title!");
+                    LOG.warn(source + " has no title!");
                 }
             }
             playlist.add(new VideoInfo(title, source));
@@ -315,7 +321,7 @@ public class MpvPlayer implements Player {
     public void setQuality(int scan){
         this.quality = scan;
         String format = "bv*[height<=" + scan + "]+ba/b[height<=" + scan + "]/bv+ba/b";
-        System.out.println(format);
+        LOG.debug(format);
         setProperty("ytdl-format", format);
         standingReload();
     }
@@ -342,5 +348,17 @@ public class MpvPlayer implements Player {
     @Override
     public void toast(String message) {
         command("show-text", message, Integer.toString(-1), Integer.toString(0));
+    }
+
+    private void cleanPlaylist(){
+        List<VideoInfo> playlist = getPlaylist();
+        for(int i = 0; i < playlist.size(); i++){
+            if(playlist.get(i).getName() == null){
+                LOG.debug("Bad entry: " + playlist.get(i).getSource());
+                command("playlist-remove", Integer.toString(i));
+                cleanPlaylist();
+                break;
+            }
+        }
     }
 }
