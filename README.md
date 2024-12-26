@@ -1,24 +1,6 @@
-## Micronaut 4.6.3 Documentation
+# vidbox
+_A box that plays vids_
 
-- [User Guide](https://docs.micronaut.io/4.6.3/guide/index.html)
-- [API Reference](https://docs.micronaut.io/4.6.3/api/index.html)
-- [Configuration Reference](https://docs.micronaut.io/4.6.3/guide/configurationreference.html)
-- [Micronaut Guides](https://guides.micronaut.io/index.html)
----
+Vidbox is a set top box application that allows you to play videos. It presents a web interface where client devices can submit the url of any video on the internet and vidbox will add it to the queue and play it. Internally it works using mpv and ytdl, so it supports any video site that your installation of ytdl supports, which includes some premium sites by taking cookies from your browser.
 
-- [Micronaut Maven Plugin documentation](https://micronaut-projects.github.io/micronaut-maven-plugin/latest/)
-## Feature maven-enforcer-plugin documentation
-
-- [https://maven.apache.org/enforcer/maven-enforcer-plugin/](https://maven.apache.org/enforcer/maven-enforcer-plugin/)
-
-
-## Feature serialization-jackson documentation
-
-- [Micronaut Serialization Jackson Core documentation](https://micronaut-projects.github.io/micronaut-serialization/latest/guide/)
-
-
-## Feature micronaut-aot documentation
-
-- [Micronaut AOT documentation](https://micronaut-projects.github.io/micronaut-aot/latest/guide/)
-
-
+When started, an mpv window will appear with a URL to the web interface. The entire application is controlled from this interface and multiple users can use the interface at once, allowing you and your friends to share videos with each other by queuing them to show on your tv.
