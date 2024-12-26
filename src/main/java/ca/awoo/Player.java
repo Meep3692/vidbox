@@ -20,4 +20,5 @@ public interface Player {
     public void next();
     public void seek(double pos);
     public void seekRelative(double pos);
+    public void setQuality(int scan);
 }

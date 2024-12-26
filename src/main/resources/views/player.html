@@ -5,22 +5,42 @@
             Player
         </title>
         <link rel="stylesheet" href="/static/style.css">
-        <meta name="viewport" content="width=device-width, initial-scale=1"
+        <link rel="preload" href="/static/media-playback-pause.png" as="image">
+        <link rel="preload" href="/static/media-playback-start.png" as="image">
+        <link rel="preload" href="/static/media-playback-stop.png" as="image">
+        <link rel="preload" href="/static/media-playback-start.png" as="image">
+        <link rel="preload" href="/static/media-seek-backward.png" as="image">
+        <link rel="preload" href="/static/media-seek-forward.png" as="image">
+        <link rel="preload" href="/static/media-skip-backward.png" as="image">
+        <link rel="preload" href="/static/media-skip-forward.png" as="image">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
     </head>
     <body>
         <h1>Player</h1>
-        <form action="/player/enqueue" method="post" enctype="application/json">
-            <label for="source">Source</label>
-            <input type="text" name="source">
-            <input type="submit" value="Add to queue">
-        </form>
-        <input id="seekbar" onchange="seek()" type="range" min="0" max="100" value="0"><br>
-        <button class="playback-controls" onclick="prev()">Prev</button>
-        <button class="playback-controls" onclick="skipBack()">&lt;5</button>
-        <button class="playback-controls" id="pauseButton" onclick="pause()">Pause</button>
-        <button class="playback-controls" onclick="skipForward()">&gt;5</button>
-        <button class="playback-controls" onclick="next()">Next</button>
+        <div class="controls-container">
+            <select id="quality-setting" label="Video quality" onchange="quality()">
+                <option value="144">144p</option>
+                <option value="240">240p</option>
+                <option value="480">480p</option>
+                <option value="540">540p</option>
+                <option value="720">720p</option>
+                <option value="1080">1080p</option>
+                <option value="2160">4k</option>
+                <option value="4320">8k</option>
+            </select>
+            <button class="playback-controls" id="prevButton"        onclick="prev()"       >Prev</button>
+            <button class="playback-controls" id="skipBackButton"    onclick="skipBack()"   >Seek back</button>
+            <button class="playback-controls" id="pauseButton"       onclick="pause()"      >Pause</button>
+            <button class="playback-controls" id="skipForwardButton" onclick="skipForward()">Seek forward</button>
+            <button class="playback-controls" id="nextButton"        onclick="next()"       >Next</button>
+            <button class="playback-controls" id="stopButton"        onclick="stop()"       >Stop</button>
+        </div><input id="seekbar" onchange="seek()" label="Seek bar" type="range" min="0" max="100" value="0">
         <h2>Playlist</h2>
+        <form id="queue-form" action="/player/enqueue" method="post" enctype="application/json">
+            <label id="source-label" for="source">Source</label>
+            <input id="source-box" type="text" name="source" placeholder="Source URL">
+            <input id="queue-button" type="submit" value="Enqueue">
+        </form>
         <ol id="vidlist">
             <li class="playlist" th:each="item,status : ${playlist}">
                 <div class="video" >
@@ -55,48 +75,71 @@
         </template>
         <script>
             let vidlist = document.getElementById("vidlist");
-            let webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/clicker");
+            let webSocket;
             let paused = false;
             const seekbar = document.getElementById("seekbar");
+            const qualitySetting = document.getElementById("quality-setting");
             const template = document.getElementById("video-template");
-            webSocket.onmessage = (msg) => {
-                let data = JSON.parse(msg.data);
-                //console.log(data);
-                if(data.playlist){
-                    vidlist.innerHTML = "";
-                    for(let i = 0; i < data.playlist.length; i++){
-                        let video = data.playlist[i];
-                        let clone = template.content.firstElementChild.cloneNode(true);
-                        clone.innerHTML = clone.innerHTML.replaceAll("$source", video.source).replaceAll("$name", video.name).replaceAll("$index", i);
-                        if(i == data.playing){
-                            clone.classList.add("playing");
-                        }
-                        vidlist.append(clone);
-                    }
+            const pauseButton = document.getElementById("pauseButton");
+
+            function reopenSocket(){
+                if(webSocket && webSocket.readyState == WebSocket.OPEN){
+                    return;
                 }
-                document.getElementById("pauseButton").innerText = data.paused ? "Play" : "Pause";
-                paused = data.paused;
-                seekbar.max = data.playingLength;
-                seekbar.value = data.playingPosition;
-            };
+                webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/clicker");
+                webSocket.onmessage = (msg) => {
+                    let data = JSON.parse(msg.data);
+                    console.log(data);
+                    if(data.playlist){
+                        vidlist.innerHTML = "";
+                        for(let i = 0; i < data.playlist.length; i++){
+                            let video = data.playlist[i];
+                            let clone = template.content.firstElementChild.cloneNode(true);
+                            clone.innerHTML = clone.innerHTML.replaceAll("$source", video.source).replaceAll("$name", video.name).replaceAll("$index", i);
+                            if(i == data.playing){
+                                clone.classList.add("playing");
+                            }
+                            vidlist.append(clone);
+                        }
+                    }
+                    pauseButton.innerText = data.paused ? "Play" : "Pause";
+                    pauseButton.setAttribute("paused", data.paused);
+                    paused = data.paused;
+                    seekbar.max = data.playingLength;
+                    seekbar.value = data.playingPosition;
+                    qualitySetting.value = data.quality;
+                };
+            }
+
+            reopenSocket();
 
             function prev(){
+                reopenSocket();
                 webSocket.send("prev");
             }
 
             function next(){
+                reopenSocket();
                 webSocket.send("next");
             }
 
+            function stop(){
+                reopenSocket();
+                webSocket.send("stop");
+            }
+
             function skipBack(){
+                reopenSocket();
                 webSocket.send("skipBack");
             }
 
             function skipForward(){
+                reopenSocket();
                 webSocket.send("skipForward");
             }
 
             function pause(){
+                reopenSocket();
                 if(paused){
                     webSocket.send("play");
                 }else{
@@ -105,7 +148,13 @@
             }
 
             function seek(){
+                reopenSocket();
                 webSocket.send("seek" + seekbar.value);
+            }
+
+            function quality(){
+                reopenSocket();
+                webSocket.send("q"+qualitySetting.value);
             }
             
         </script>

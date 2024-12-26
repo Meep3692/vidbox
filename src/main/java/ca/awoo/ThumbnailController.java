@@ -1,6 +1,7 @@
 package ca.awoo;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
 import io.micronaut.http.MediaType;
@@ -18,7 +19,7 @@ public class ThumbnailController {
 
     @Get
     @Produces(MediaType.IMAGE_PNG)
-    public CompletableFuture<File> getImage(String source) {
+    public CompletableFuture<InputStream> getImage(String source) {
         return provider.getThumbnail(source);
     }
 }

@@ -2,6 +2,7 @@ package ca.awoo;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +25,9 @@ public class MpvPlayer implements Player {
     private Thread listenThread;
 
     private TitleProvider titleProvider;
+    private int quality = 480;
+
+    private double loadseek = 0;
 
     public MpvPlayer(EmbeddedServer embeddedServer, TitleProvider titleProvider, PlayerOption... options) throws MpvException{
         this.titleProvider = titleProvider;
@@ -93,6 +97,11 @@ public class MpvPlayer implements Player {
                 switch(event){
                     case MPV_EVENT_SHUTDOWN:
                         return;
+                    case MPV_EVENT_FILE_LOADED:
+                        if(loadseek > 0){
+                            seek(loadseek);
+                            loadseek = 0;
+                        }
                     default:
                         notifyChange();
                         break;
@@ -199,6 +208,9 @@ public class MpvPlayer implements Player {
                 CompletableFuture<String> titleFuture = titleProvider.getTitle(source);
                 //Cheeky cheeky, we're not going to bother waiting, we'll get it from cache on the next pass anyways
                 title = titleFuture.getNow("Pending...");
+                if(title == null){
+                    System.out.println(source + " has no title!");
+                }
             }
             playlist.add(new VideoInfo(title, source));
         }
@@ -224,12 +236,12 @@ public class MpvPlayer implements Player {
 
     @Override
     public PlayerState getState() {
-        return new PlayerState(getPlaylist(), playlistPos(), isPaused(), playingLength(), playingPosition());
+        return new PlayerState(getPlaylist(), playlistPos(), isPaused(), playingLength(), playingPosition(), quality);
     }
 
     @Override
     public PlayerState getStateWithoutPlaylist(){
-        return new PlayerState(null, playlistPos(), isPaused(), playingLength(), playingPosition());
+        return new PlayerState(null, playlistPos(), isPaused(), playingLength(), playingPosition(), quality);
     }
 
     @Override
@@ -272,6 +284,27 @@ public class MpvPlayer implements Player {
     @Override
     public void seekRelative(double pos){
         command("seek", Double.toString(pos), "relative");
+    }
+
+    //Thank you https://github.com/christoph-heinrich/mpv-quality-menu
+    //who thanks https://github.com/4e6/mpv-reload/
+    private void standingReload(){
+        double duration = playingLength();
+        double position = playingPosition();
+        //Check for live streams
+        if(duration > 0){
+            loadseek = position;
+            playIndex(playlistPos());
+        }
+    }
+
+    @Override
+    public void setQuality(int scan){
+        this.quality = scan;
+        String format = "bv*[height<=" + scan + "]+ba/b[height<=" + scan + "]/bv+ba/b";
+        System.out.println(format);
+        setProperty("ytdl-format", format);
+        standingReload();
     }
 
     private Consumer<PlayerState> changeListener;

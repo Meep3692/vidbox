@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class YtdlTitleProvider implements TitleProvider {
@@ -34,24 +32,21 @@ public class YtdlTitleProvider implements TitleProvider {
 
     private final Map<String, String> cache = Collections.synchronizedMap(new HashMap<>());
     private final BlockingQueue<Job> jobs = new LinkedBlockingQueue<>();
-    private final ExecutorService waiter = Executors.newCachedThreadPool();
     private final Thread workThread = new Thread(() -> {
         while(true){
             try {
                 Job job = jobs.take();
                 try {
                     Process proc = download(job.source);
-                    //waiter.submit(() -> {
-                        try {
-                            String title = proc.inputReader(Charset.forName("utf-8")).readLine();
-                            cache.put(job.source, title);
-                            System.out.println("Got title for " + job.source + ": " + title);
-                            job.future.complete(title);
-                        } catch (IOException e) {
-                            job.future.completeExceptionally(e);
-                            return;
-                        }
-                    //});
+                    try {
+                        String title = proc.inputReader(Charset.forName("utf-8")).readLine();
+                        cache.put(job.source, title);
+                        System.out.println("Got title for " + job.source + ": " + title);
+                        job.future.complete(title);
+                    } catch (IOException e) {
+                        job.future.completeExceptionally(e);
+                        return;
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     job.future.completeExceptionally(e);

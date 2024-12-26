@@ -11,14 +11,16 @@ public class PlayerState {
     public final boolean paused;
     public final double playingLength;
     public final double playingPosition;
+    public final int quality;
     
     public PlayerState(List<VideoInfo> playlist, int playing, boolean paused, double playingLength,
-            double playingPosition) {
+            double playingPosition, int quality) {
         this.playlist = playlist;
         this.playing = playing;
         this.paused = paused;
         this.playingLength = playingLength;
         this.playingPosition = playingPosition;
+        this.quality = quality;
     }
     public List<VideoInfo> getPlaylist() {
         return playlist;
@@ -34,5 +36,8 @@ public class PlayerState {
     }
     public double getPlayingPosition(){
         return playingPosition;
+    }
+    public int getQuality(){
+        return quality;
     }
 }

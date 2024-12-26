@@ -49,10 +49,17 @@ public class PlayerSocket {
             case "skipForward":
                 player.seekRelative(5);
                 break;
+            case "stop":
+                player.playIndex(-1);
+                break;
         }
         if(message.startsWith("seek")){
             double seekPos = Double.parseDouble(message.substring(4));
             player.seek(seekPos);
+        }
+        if(message.startsWith("q")){
+            int quality = Integer.parseInt(message.substring(1));
+            player.setQuality(quality);
         }
     }
     

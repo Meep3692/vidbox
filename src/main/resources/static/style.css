@@ -1,3 +1,40 @@
+#queue-form {
+    display:flex;
+    /* border-radius:100vw;
+    border-color:black;
+    border-style:solid;
+    border-width: 1px; */
+    padding:1px;
+}
+
+#source-label{
+    display:none;
+}
+
+#source-box {
+    background:none;
+    /* border:none; */
+    border-radius:100vw;
+    border-width:2px;
+    flex-grow: 1;
+}
+
+#queue-button {
+    border-radius: 100vw;
+    margin-left:calc(-7ic - 3px);
+    width:7ic;
+    margin-top:3px;
+    margin-bottom:3px;
+}
+
+/* #source-box:focus {
+    outline:none;
+}
+
+#queue-form:has(> #source-box:focus) {
+    outline:auto;
+} */
+
 #vidlist{
     padding-left:0;
 }
@@ -42,6 +79,11 @@
     font-size: 1.5em;
     text-overflow: ellipsis;
     overflow:hidden;
+    color:black;
+}
+
+.video-title:visited {
+    color:black;
 }
 
 .video-source {
@@ -56,9 +98,65 @@
     border-color:#b5dbfc;
 }
 
-@media (pointer:coarse) {
-    .playback-controls {
-        height:    4em;
-        min-width: 4em;
-    }
+.playback-controls {
+    height:    4em;
+    width: 4em;
+    background-size: contain;
+    color: transparent;
+    border: none;
+    background-color: transparent;
+    margin:1px;
+}
+
+#seekbar {
+    width:100%;
+}
+
+.controls-container {
+    display:flex;
+    justify-content: center;
+}
+
+#quality-setting {
+    appearance: none;
+    height: 4em;
+    width:  4em;
+    margin: 1px;
+    /* border-image: linear-gradient(to bottom, #858585, #555555); */
+    border-color: #555555;
+    border-radius: 2em;
+    border-width: 0.4em;
+    border-style: solid;
+    background-image:radial-gradient(#FFFFFF, #FFFFFF, #B7B7B7);
+    text-align: center;
+    font-weight: bold;
+    padding:0;
+}
+
+#prevButton {
+    background-image: url("/static/media-skip-backward.png");
+}
+
+#skipBackButton {
+    background-image: url("/static/media-seek-backward.png");
+}
+
+#pauseButton {
+    background-image: url("/static/media-playback-pause.png");
+}
+
+#pauseButton[paused="true"] {
+    background-image: url("/static/media-playback-start.png");
+}
+
+#skipForwardButton {
+    background-image: url("/static/media-seek-forward.png");
+}
+
+#nextButton {
+    background-image: url("/static/media-skip-forward.png");
+}
+
+#stopButton {
+    background-image: url("/static/media-playback-stop.png");
 }
