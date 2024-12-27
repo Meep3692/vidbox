@@ -2,6 +2,7 @@ package ca.awoo;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -73,11 +74,14 @@ public class SponsorBlockController {
         }
         if(playingId != null){
             if(!playingId.equals(segmentsId)){
-                log.info("Playing new youtube video: " + playingId + ", getting segments");
+                log.info("Playing new youtube video: " + playingId + " from old video: " + segmentsId + ", getting segments");
                 segments = client.fetchSegments(playingId);
                 if(segments == null){
-                    //I don't know why this happens
-                    segmentsId = null;
+                    //No segments handsome
+                    //Make this list exist
+                    log.info("No segments");
+                    segments = new ArrayList<>();
+                    segmentsId = playingId;
                     return;
                 }
                 for(Segment segment : segments){
