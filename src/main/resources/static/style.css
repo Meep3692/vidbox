@@ -101,6 +101,8 @@
 .playback-controls {
     height:    4em;
     width: 4em;
+    min-width: 4em;
+    min-height: 4em;
     background-size: contain;
     color: transparent;
     border: none;
@@ -115,12 +117,15 @@
 .controls-container {
     display:flex;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 #quality-setting {
     appearance: none;
     height: 4em;
     width:  4em;
+    min-width: 4em;
+    min-height: 4em;
     margin: 1px;
     /* border-image: linear-gradient(to bottom, #858585, #555555); */
     border-color: #555555;
