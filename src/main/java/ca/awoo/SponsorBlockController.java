@@ -59,18 +59,33 @@ public class SponsorBlockController {
                     log.error(playingSource + " is not a valid URI somehow", e);
                     playingId = null;
                 }
+            }else if(playingSource.contains("youtu.be")){
+                log.info("youtu.be");
+                try {
+                    URI uri = new URI(playingSource);
+                    playingId = uri.getPath().substring(1);
+                } catch (URISyntaxException e) {
+                    log.error(playingSource + " is not a valid URI somehow", e);
+                    playingId = null;
+                }
+
             }
         }
         if(playingId != null){
             if(!playingId.equals(segmentsId)){
                 log.info("Playing new youtube video: " + playingId + ", getting segments");
                 segments = client.fetchSegments(playingId);
+                if(segments == null){
+                    //I don't know why this happens
+                    segmentsId = null;
+                    return;
+                }
                 for(Segment segment : segments){
                     log.info(segment.toString());
                 }
                 segmentsId = playingId;
             }
-            if(segmentsId.equals(playingId)){
+            if(segmentsId != null && segmentsId.equals(playingId)){
                 double position = player.playingPosition();
                 for(Segment segment : segments){
                     float start = segment.segment()[0];
