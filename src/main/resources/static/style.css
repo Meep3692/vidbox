@@ -50,6 +50,7 @@
 
 .video {
     display: flex;
+    position:relative;
 }
 
 .video-thumbnail-container {
@@ -72,6 +73,7 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow:hidden;
+    margin-right:2em;
 }
 
 .video-title {
@@ -172,4 +174,19 @@
 
 #subsButton[subs="true"] {
     background-image: url("/static/media-subtitle-filled.png");
+}
+
+.removeButton {
+    position:absolute;
+    right:0;
+    top:0;
+    background-image: url("/static/remove.png");
+    height:     2em;
+    width:      2em;
+    min-width:  2em;
+    min-height: 2em;
+    background-size: contain;
+    color: transparent;
+    border: none;
+    background-color: transparent;
 }

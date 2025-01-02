@@ -19,7 +19,7 @@ public class YtdlThumbnailProvider implements ThumbnailProvider {
     private File tempdir = new File(System.getProperty("java.io.tmpdir"));
 
     private static final String[] defaultOpts = new String[]
-        {"--skip-download", "--write-thumbnail", "--convert-thumbnails", "png", "--no-playlist"};
+        {"--skip-download", "--write-thumbnail", "--convert-thumbnails", "png", "--no-playlist", "--break-on-reject", "--match-filter", "!playlist"};
 
     public YtdlThumbnailProvider(String ytdl, String... options) {
         this.ytdl = ytdl;

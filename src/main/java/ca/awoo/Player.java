@@ -25,4 +25,5 @@ public interface Player {
     public void setQuality(int scan);
     public void subtitles(boolean on);
     public void toast(String message);
+    public void remove(int index);
 }

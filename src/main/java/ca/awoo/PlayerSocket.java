@@ -62,10 +62,12 @@ public class PlayerSocket {
         if(message.startsWith("seek")){
             double seekPos = Double.parseDouble(message.substring(4));
             player.seek(seekPos);
-        }
-        if(message.startsWith("q")){
+        }else if(message.startsWith("q")){
             int quality = Integer.parseInt(message.substring(1));
             player.setQuality(quality);
+        }else if(message.startsWith("remove")){
+            int index = Integer.parseInt(message.substring(6));
+            player.remove(index);
         }
     }
     

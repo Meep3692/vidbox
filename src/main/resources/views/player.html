@@ -71,6 +71,7 @@
                             $source
                         </p>
                     </div>
+                    <button class="removeButton" onclick="remove($index)">Remove</button>
                 </div>
             </li>
         </template>
@@ -166,6 +167,11 @@
             function subs(){
                 reopenSocket();
                 webSocket.send(subson ? "subsOff" : "subsOn");
+            }
+
+            function remove(i){
+                reopenSocket();
+                webSocket.send("remove" + i);
             }
 
             window.setInterval(reopenSocket, 1000);

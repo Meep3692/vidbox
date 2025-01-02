@@ -3,7 +3,6 @@ package ca.awoo;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,6 @@ import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import ca.awoo.MPV.mpv_event;
 import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.scheduling.annotation.Scheduled;
 
 public class MpvPlayer implements Player {
     private final MPV mpv;
@@ -348,6 +346,12 @@ public class MpvPlayer implements Player {
     @Override
     public void toast(String message) {
         command("show-text", message, Integer.toString(-1), Integer.toString(0));
+    }
+
+    @Override
+    public void remove(int index) {
+        command("playlist-remove", Integer.toString(index));
+        notifyChange();
     }
 
     private void cleanPlaylist(){
