@@ -10,9 +10,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class YtdlTitleProvider implements TitleProvider {
     private final String ytdl;
     private final String[] options;
+
+    private static final Logger LOG = LoggerFactory.getLogger(YtdlTitleProvider.class);
 
     public YtdlTitleProvider(String ytdl, String... options) {
         this.ytdl = ytdl;
@@ -41,7 +46,7 @@ public class YtdlTitleProvider implements TitleProvider {
                     try {
                         String title = proc.inputReader(Charset.forName("utf-8")).readLine();
                         cache.put(job.source, title);
-                        System.out.println("Got title for " + job.source + ": " + title);
+                        LOG.debug("Got title for " + job.source + ": " + title);
                         job.future.complete(title);
                     } catch (IOException e) {
                         job.future.completeExceptionally(e);
@@ -73,7 +78,7 @@ public class YtdlTitleProvider implements TitleProvider {
             sb.append(c);
             sb.append(" ");
         }
-        System.out.println(sb.toString());
+        LOG.debug(sb.toString());
         ProcessBuilder pb = new ProcessBuilder(command).redirectError(Redirect.INHERIT);
         return pb.start();
     }

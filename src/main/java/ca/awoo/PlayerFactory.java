@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import org.slf4j.LoggerFactory;
+
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.runtime.server.EmbeddedServer;
@@ -16,7 +18,7 @@ public class PlayerFactory {
         Path configDir = Files.createTempDirectory("vidbox");
         Files.createDirectories(configDir.resolve("scripts"));
         Files.copy(getClass().getResourceAsStream("/visualizer.lua"), configDir.resolve("scripts/osc.lua"), StandardCopyOption.REPLACE_EXISTING);
-        System.out.println("Config path: " + configDir.toAbsolutePath().toString());
+        LoggerFactory.getLogger(PlayerFactory.class).debug("Config path: " + configDir.toAbsolutePath().toString());
         return new MpvPlayer(
             embeddedServer,
             titleProvider,
