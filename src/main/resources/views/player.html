@@ -88,7 +88,11 @@
 
             function reopenSocket(){
                 if(webSocket && webSocket.readyState == WebSocket.OPEN){
-                    return;
+                    return true;
+                }
+                if(webSocket && webSocket.readyState == WebSocket.CONNECTING){
+                    //Sometimes micronaut takes like a full minute to connect a websocket
+                    return false;
                 }
                 webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/clicker");
                 webSocket.onmessage = (msg) => {
@@ -116,62 +120,58 @@
                     seekbar.value = data.playingPosition;
                     qualitySetting.value = data.quality;
                 };
+                return webSocket.readyState == WebSocket.OPEN;
             }
 
             reopenSocket();
 
             function prev(){
-                reopenSocket();
-                webSocket.send("prev");
+                if(reopenSocket()){
+                    webSocket.send("prev");
+                }
+                
             }
 
             function next(){
-                reopenSocket();
-                webSocket.send("next");
+                if(reopenSocket()){webSocket.send("next");}
             }
 
             function stop(){
-                reopenSocket();
-                webSocket.send("stop");
+                if(reopenSocket()){webSocket.send("stop");}
             }
 
             function skipBack(){
-                reopenSocket();
-                webSocket.send("skipBack");
+                if(reopenSocket()){webSocket.send("skipBack");}
             }
 
             function skipForward(){
-                reopenSocket();
-                webSocket.send("skipForward");
+                if(reopenSocket()){webSocket.send("skipForward");}
             }
 
             function pause(){
-                reopenSocket();
-                if(paused){
-                    webSocket.send("play");
-                }else{
-                    webSocket.send("pause");
+                if(reopenSocket()){
+                    if(paused){
+                        webSocket.send("play");
+                    }else{
+                        webSocket.send("pause");
+                    }
                 }
             }
 
             function seek(){
-                reopenSocket();
-                webSocket.send("seek" + seekbar.value);
+                if(reopenSocket()){webSocket.send("seek" + seekbar.value);}
             }
 
             function quality(){
-                reopenSocket();
-                webSocket.send("q"+qualitySetting.value);
+                if(reopenSocket()){webSocket.send("q"+qualitySetting.value);}
             }
 
             function subs(){
-                reopenSocket();
-                webSocket.send(subson ? "subsOff" : "subsOn");
+                if(reopenSocket()){webSocket.send(subson ? "subsOff" : "subsOn");}
             }
 
             function remove(i){
-                reopenSocket();
-                webSocket.send("remove" + i);
+                if(reopenSocket()){webSocket.send("remove" + i);}
             }
 
             window.setInterval(reopenSocket, 1000);

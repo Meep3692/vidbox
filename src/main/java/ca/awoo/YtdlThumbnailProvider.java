@@ -1,10 +1,8 @@
 package ca.awoo;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -13,24 +11,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.imageio.ImageIO;
+
 public class YtdlThumbnailProvider implements ThumbnailProvider {
     private final String ytdl;
     private final String[] options;
     private File tempdir = new File(System.getProperty("java.io.tmpdir"));
+    private BufferedImage noThumbnail = null;
 
     private static final String[] defaultOpts = new String[]
         {"--skip-download", "--write-thumbnail", "--convert-thumbnails", "png", "--no-playlist", "--break-on-reject", "--match-filter", "!playlist"};
 
-    public YtdlThumbnailProvider(String ytdl, String... options) {
+    public YtdlThumbnailProvider(String ytdl, String... options) throws IOException {
         this.ytdl = ytdl;
         this.options = options;
         workThread.start();
+        noThumbnail = ImageIO.read(getClass().getResource("/video.png"));
     }
 
     private static class Job{
         public final String source;
-        public final CompletableFuture<InputStream> future;
-        public Job(String source, CompletableFuture<InputStream> future) {
+        public final CompletableFuture<BufferedImage> future;
+        public Job(String source, CompletableFuture<BufferedImage> future) {
             this.source = source;
             this.future = future;
         }
@@ -47,12 +49,16 @@ public class YtdlThumbnailProvider implements ThumbnailProvider {
                 Job job = jobs.take();
                 if(job.source.contains("youtube.com/playlist")){
                     badSources.add(job.source);
-                    job.future.complete(getClass().getResourceAsStream("/video.png"));
+                    job.future.complete(noThumbnail);
                     continue;
                 }
                 File dest = getThumbnailLocationExt(job.source);
                 if(dest.exists()){
-                    job.future.complete(new FileInputStream(dest));
+                    try {
+                        job.future.complete(ImageIO.read(dest));
+                    } catch (IOException e) {
+                        job.future.complete(noThumbnail);
+                    }
                 }else{
                     try {
                         Process proc = download(job.source);
@@ -61,35 +67,32 @@ public class YtdlThumbnailProvider implements ThumbnailProvider {
                                 proc.waitFor();
                             } catch (InterruptedException e) {
                                 badSources.add(job.source);
-                                job.future.complete(getClass().getResourceAsStream("/video.png"));
+                                job.future.complete(noThumbnail);
                                 return;
                             }
                             if(dest.exists()){
                                 try {
-                                    job.future.complete(new FileInputStream(dest));
-                                } catch (FileNotFoundException e) {
+                                    job.future.complete(ImageIO.read(dest));
+                                } catch (IOException e) {
                                     //Literally impossible
                                     badSources.add(job.source);
-                                    job.future.complete(getClass().getResourceAsStream("/video.png"));
+                                    job.future.complete(noThumbnail);
                                 }
                             }else{
                                 badSources.add(job.source);
-                                job.future.complete(getClass().getResourceAsStream("/video.png"));
+                                job.future.complete(noThumbnail);
                             }
                         });
                     } catch (IOException e) {
                         e.printStackTrace();
                         badSources.add(job.source);
-                        job.future.complete(getClass().getResourceAsStream("/video.png"));
+                        job.future.complete(noThumbnail);
                     }
                 }
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 return;
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             }
         }
     });
@@ -123,19 +126,19 @@ public class YtdlThumbnailProvider implements ThumbnailProvider {
     
 
     @Override
-    public CompletableFuture<InputStream> getThumbnail(String source) {
+    public CompletableFuture<BufferedImage> getThumbnail(String source) {
         if(source.equals("$source")){
             //Browsers are always asking for a beautiful girl called $source
-            return CompletableFuture.completedFuture(getClass().getResourceAsStream("/video.png"));
+            return CompletableFuture.completedFuture(noThumbnail);
         }
         if(badSources.contains(source)){
-            return CompletableFuture.completedFuture(getClass().getResourceAsStream("/video.png"));
+            return CompletableFuture.completedFuture(noThumbnail);
         }
         File dest = getThumbnailLocationExt(source);
         if(dest.exists()){
             try {
-                return CompletableFuture.completedFuture(new FileInputStream(dest));
-            } catch (FileNotFoundException e) {
+                return CompletableFuture.completedFuture(ImageIO.read(dest));
+            } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }

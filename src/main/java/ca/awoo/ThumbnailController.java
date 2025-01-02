@@ -1,8 +1,9 @@
 package ca.awoo;
 
-import java.io.InputStream;
+import java.awt.image.BufferedImage;
 import java.util.concurrent.CompletableFuture;
 
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -18,7 +19,7 @@ public class ThumbnailController {
 
     @Get
     @Produces(MediaType.IMAGE_PNG)
-    public CompletableFuture<InputStream> getImage(String source) {
-        return provider.getThumbnail(source);
+    public HttpResponse<CompletableFuture<BufferedImage>> getImage(String source) {
+        return HttpResponse.ok(provider.getThumbnail(source)).header("Cache-Control", "public, max-age=604800, immutable");
     }
 }
