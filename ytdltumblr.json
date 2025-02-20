@@ -1,0 +1,88 @@
+{
+    "id": "776033656213028864",
+    "title": "perfect-puppy",
+    "description": null,
+    "uploader_id": "showertaker-deactivated20230925",
+    "uploader_url": "https://showertaker-deactivated20230925.tumblr.com/",
+    "like_count": 26417,
+    "repost_count": 23266,
+    "age_limit": 0,
+    "formats": [
+        {
+            "url": "https://va.media.tumblr.com/tumblr_rwzub4PBSP1a6q2xz_720.mp4",
+            "width": 1240,
+            "height": 894,
+            "protocol": "https",
+            "ext": "mp4",
+            "video_ext": "mp4",
+            "audio_ext": "none",
+            "vbr": null,
+            "abr": null,
+            "tbr": null,
+            "resolution": "1240x894",
+            "dynamic_range": "SDR",
+            "aspect_ratio": 1.39,
+            "filesize_approx": null,
+            "http_headers": {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-us,en;q=0.5",
+                "Sec-Fetch-Mode": "navigate"
+            },
+            "format_id": "0",
+            "format": "0 - 1240x894"
+        }
+    ],
+    "thumbnail": "https://64.media.tumblr.com/tumblr_rwzub4PBSP1a6q2xz_frame1.jpg",
+    "webpage_url": "https://www.tumblr.com/perfect-puppy/776033656213028864?source=share",
+    "original_url": "https://www.tumblr.com/perfect-puppy/776033656213028864?source=share",
+    "webpage_url_basename": "776033656213028864",
+    "webpage_url_domain": "tumblr.com",
+    "extractor": "Tumblr",
+    "extractor_key": "Tumblr",
+    "playlist": null,
+    "playlist_index": null,
+    "thumbnails": [
+        {
+            "url": "https://64.media.tumblr.com/tumblr_rwzub4PBSP1a6q2xz_frame1.jpg",
+            "id": "0"
+        }
+    ],
+    "display_id": "776033656213028864",
+    "fulltitle": "perfect-puppy",
+    "release_year": null,
+    "requested_subtitles": null,
+    "_has_drm": null,
+    "epoch": 1740091043,
+    "url": "https://va.media.tumblr.com/tumblr_rwzub4PBSP1a6q2xz_720.mp4",
+    "width": 1240,
+    "height": 894,
+    "protocol": "https",
+    "ext": "mp4",
+    "video_ext": "mp4",
+    "audio_ext": "none",
+    "vbr": null,
+    "abr": null,
+    "tbr": null,
+    "resolution": "1240x894",
+    "dynamic_range": "SDR",
+    "aspect_ratio": 1.39,
+    "filesize_approx": null,
+    "http_headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-us,en;q=0.5",
+        "Sec-Fetch-Mode": "navigate"
+    },
+    "format_id": "0",
+    "format": "0 - 1240x894",
+    "_filename": "perfect-puppy [776033656213028864].mp4",
+    "filename": "perfect-puppy [776033656213028864].mp4",
+    "_type": "video",
+    "_version": {
+        "version": "2025.01.15",
+        "current_git_head": null,
+        "release_git_head": "c8541f8b13e743fcfa06667530d13fee8686e22a",
+        "repository": "yt-dlp/yt-dlp"
+    }
+}
