@@ -54,6 +54,9 @@ public class MpvPlayer implements Player {
                 int score = 0;
                 byte[] bparts = address.getAddress();
                 short[] parts = new short[bparts.length];
+                if(bparts.length > 4){
+                    continue;
+                }
                 for(int i = 0; i < bparts.length; i++){
                     if(bparts[i] < 0){
                         parts[i] = (short) (bparts[i] + 256);
@@ -81,7 +84,9 @@ public class MpvPlayer implements Player {
                 LOG.debug(entry.getKey() + ": " + entry.getValue());
             }
             InetAddress address = addressScores.entrySet().stream().sorted((e1, e2) -> e1.getValue() - e2.getValue()).findFirst().get().getKey();
-            setProperty("osd-msg1", "http://" + address.getHostName() + ":" + embeddedServer.getPort() + "/player");
+            String urlString = "http://" + address.getHostAddress() + ":" + embeddedServer.getPort() + "/player";
+            LOG.debug(urlString);
+            setProperty("osd-msg1", urlString);
         } catch (UnknownHostException e) {
             //wat
         }
