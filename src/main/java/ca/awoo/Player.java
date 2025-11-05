@@ -7,9 +7,9 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public interface Player {
-    public void setProperty(PlayerOption option) throws MpvException;
-    public void enqueue(String source) throws MpvException;
-    public void playIndex(int index) throws MpvException;
+    // public void setProperty(PlayerOption option);
+    public void enqueue(String source);
+    public void playIndex(int index);
     public List<VideoInfo> getPlaylist();
     public VideoInfo nowPlaying();
     public double playingPosition();

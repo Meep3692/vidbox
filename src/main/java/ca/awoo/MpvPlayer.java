@@ -175,7 +175,7 @@ public class MpvPlayer implements Player {
         return event;
     }
 
-    @Override
+    // @Override
     public void setProperty(PlayerOption option) throws MpvException{
         synchronized(this){
             int error = mpv.mpv_set_property_string(handle, option.name(), option.value());
