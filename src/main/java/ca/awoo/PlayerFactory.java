@@ -14,7 +14,7 @@ import io.micronaut.runtime.server.EmbeddedServer;
 @Factory
 public class PlayerFactory {
     @Bean
-    Player mpvPlayer(EmbeddedServer embeddedServer, TitleProvider titleProvider) throws IOException, MpvException{
+    Player mpvPlayer(EmbeddedServer embeddedServer, TitleProvider titleProvider, SourceProvider sourceProvider) throws IOException, MpvException{
         Path configDir = Files.createTempDirectory("vidbox");
         Files.createDirectories(configDir.resolve("scripts"));
         Files.copy(getClass().getResourceAsStream("/visualizer.lua"), configDir.resolve("scripts/osc.lua"), StandardCopyOption.REPLACE_EXISTING);
@@ -22,6 +22,7 @@ public class PlayerFactory {
         return new MpvPlayer(
             embeddedServer,
             titleProvider,
+            sourceProvider,
             new PlayerOption("idle", "yes"),
             new PlayerOption("force-window", "immediate"),
             new PlayerOption("osc", "no"),
