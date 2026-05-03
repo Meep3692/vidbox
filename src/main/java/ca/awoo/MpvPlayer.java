@@ -25,17 +25,16 @@ public class MpvPlayer implements Player {
 
     private Thread listenThread;
 
-    private TitleProvider titleProvider;
     private final SourceProvider sourceProvider;
     private int quality = 480;
 
     private double loadseek = 0;
 
     /**
-     * Java-owned playlist: list of sources and current index.
+     * Java-owned playlist: list of videos and current index.
      * mpv is treated as a single-item player.
      */
-    private final List<String> playlist = new ArrayList<>();
+    private final List<Video> playlist = new ArrayList<>();
     private int currentIndex = -1;
 
     /**
@@ -47,8 +46,7 @@ public class MpvPlayer implements Player {
 
     private static final Logger LOG = LoggerFactory.getLogger(MpvPlayer.class);
 
-    public MpvPlayer(EmbeddedServer embeddedServer, TitleProvider titleProvider, SourceProvider sourceProvider, PlayerOption... options) throws MpvException{
-        this.titleProvider = titleProvider;
+    public MpvPlayer(EmbeddedServer embeddedServer, SourceProvider sourceProvider, PlayerOption... options) throws MpvException{
         this.sourceProvider = sourceProvider;
         this.mpv = MPV.INSTANCE;
         if(Platform.isLinux())
@@ -212,10 +210,10 @@ public class MpvPlayer implements Player {
     @Override
     public void enqueue(String source) {
         synchronized(this){
-            List<String> sourcesToAdd = new ArrayList<>(sourceProvider.expandSources(source));
+            List<Video> videosToAdd = sourceProvider.expandSources(source);
             boolean startPlayback = currentIndex < 0;
-            for(String s : sourcesToAdd){
-                playlist.add(s);
+            for(Video v : videosToAdd){
+                playlist.add(v);
             }
             if(startPlayback && !playlist.isEmpty()){
                 currentIndex = 0;
@@ -229,16 +227,16 @@ public class MpvPlayer implements Player {
     public List<VideoInfo> getPlaylist() {
         synchronized(this){
             List<VideoInfo> list = new ArrayList<>(playlist.size());
-            for(String source : playlist){
+            for(Video video : playlist){
                 String title = null;
                 try{
-                    CompletableFuture<String> titleFuture = titleProvider.getTitle(source);
+                    CompletableFuture<String> titleFuture = video.getTitle();
                     // Do not block; titles will be cached and filled in on later passes.
                     title = titleFuture.getNow("Pending...");
                 }catch(Throwable t){
-                    LOG.warn("Failed to get title for {}", source, t);
+                    LOG.warn("Failed to get title for {}", video.getSource(), t);
                 }
-                list.add(new VideoInfo(title, source));
+                list.add(new VideoInfo(title, video.getSource()));
             }
             return list;
         }
@@ -250,15 +248,15 @@ public class MpvPlayer implements Player {
             if(currentIndex < 0 || currentIndex >= playlist.size()){
                 return null;
             }
-            String source = playlist.get(currentIndex);
+            Video video = playlist.get(currentIndex);
             String title = null;
             try{
-                CompletableFuture<String> titleFuture = titleProvider.getTitle(source);
+                CompletableFuture<String> titleFuture = video.getTitle();
                 title = titleFuture.getNow("Pending...");
             }catch(Throwable t){
-                LOG.warn("Failed to get title for now playing {}", source, t);
+                LOG.warn("Failed to get title for now playing {}", video.getSource(), t);
             }
-            return new VideoInfo(title, source);
+            return new VideoInfo(title, video.getSource());
         }
     }
 
@@ -408,7 +406,7 @@ public class MpvPlayer implements Player {
         if(changeListener != null){
             changeListener.accept(getState());
         }
-        setProperty("osd-level", getPlaylistPosition() < 0 ? "1" : "0");
+        setProperty("osd-level", getPlaylistPosition() < 0 ? "3" : "0");
     }
 
     @Override
@@ -464,7 +462,8 @@ public class MpvPlayer implements Player {
             if(currentIndex < 0 || currentIndex >= playlist.size()){
                 return;
             }
-            String source = playlist.get(currentIndex);
+            Video video = playlist.get(currentIndex);
+            String source = video.getSource();
             try{
                 if(suppressEnd){
                     suppressNextEnd = true;

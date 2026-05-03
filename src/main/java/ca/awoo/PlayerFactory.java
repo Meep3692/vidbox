@@ -14,14 +14,13 @@ import io.micronaut.runtime.server.EmbeddedServer;
 @Factory
 public class PlayerFactory {
     @Bean
-    Player mpvPlayer(EmbeddedServer embeddedServer, TitleProvider titleProvider, SourceProvider sourceProvider) throws IOException, MpvException{
+    Player mpvPlayer(EmbeddedServer embeddedServer, SourceProvider sourceProvider) throws IOException, MpvException{
         Path configDir = Files.createTempDirectory("vidbox");
         Files.createDirectories(configDir.resolve("scripts"));
         Files.copy(getClass().getResourceAsStream("/visualizer.lua"), configDir.resolve("scripts/osc.lua"), StandardCopyOption.REPLACE_EXISTING);
         LoggerFactory.getLogger(PlayerFactory.class).debug("Config path: " + configDir.toAbsolutePath().toString());
         return new MpvPlayer(
             embeddedServer,
-            titleProvider,
             sourceProvider,
             new PlayerOption("idle", "yes"),
             new PlayerOption("force-window", "immediate"),

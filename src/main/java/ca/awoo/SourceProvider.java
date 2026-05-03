@@ -8,11 +8,13 @@ import java.util.List;
  * different tools (yt-dlp, streamlink, etc.).
  */
 public interface SourceProvider {
+    public boolean supports(String source);
+
     /**
      * Given a user input string, return one or more concrete source URLs
      * to enqueue. For non-playlist URLs this will typically be a singleton
      * list; for playlist URLs it may return multiple entries.
      */
-    List<String> expandSources(String source);
+    List<Video> expandSources(String source);
 }
 
