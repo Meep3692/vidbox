@@ -14,10 +14,8 @@
         <link rel="preload" href="static/media-skip-backward.png" as="image">
         <link rel="preload" href="static/media-skip-forward.png" as="image">
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/htmx-ext-ws@2.0.4" integrity="sha384-1RwI/nvUSrMRuNj7hX1+27J8XDdCoSLf0EjEyF69nacuWyiJYoQ/j39RT1mSnd2G" crossorigin="anonymous"></script>
     </head>
-    <body hx-ext="ws" ws-connect="controls">
+    <body>
         <h1>Player</h1>
         <div class="controls-container">
             <select id="quality-setting" label="Video quality" onchange="quality()">
@@ -39,7 +37,7 @@
             <button class="playback-controls" id="subsButton"        onclick="subs()"       >Subtitles off</button>
         </div><input id="seekbar" onchange="seek()" label="Seek bar" type="range" min="0" max="100" value="0">
         <h2>Playlist</h2>
-        <form id="queue-form" ws-send>
+        <form id="queue-form" action="player/enqueue" method="post" enctype="application/json">
             <label id="source-label" for="source">Source</label>
             <input id="source-box" type="text" name="source" placeholder="Source URL">
             <input id="queue-button" type="submit" value="Enqueue">
@@ -65,5 +63,107 @@
                 </div>
             </li>
         </template>
+        <script>
+            let vidlist = document.getElementById("vidlist");
+            let webSocket;
+            let paused = false;
+            let subson = false;
+            const seekbar        = document.getElementById("seekbar");
+            const qualitySetting = document.getElementById("quality-setting");
+            const template       = document.getElementById("video-template");
+            const pauseButton    = document.getElementById("pauseButton");
+            const subsButton     = document.getElementById("subsButton");
+
+            function reopenSocket(){
+                if(webSocket && webSocket.readyState == WebSocket.OPEN){
+                    return true;
+                }
+                if(webSocket && webSocket.readyState == WebSocket.CONNECTING){
+                    //Sometimes micronaut takes like a full minute to connect a websocket
+                    return false;
+                }
+                webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/vidbox/controls");
+                webSocket.onmessage = (msg) => {
+                    let data = JSON.parse(msg.data);
+                    // console.log(data);
+                    if(data.playlist){
+                        vidlist.innerHTML = "";
+                        for(let i = 0; i < data.playlist.length; i++){
+                            let video = data.playlist[i];
+                            let clone = template.content.firstElementChild.cloneNode(true);
+                            clone.innerHTML = clone.innerHTML.replaceAll("$source", video.source).replaceAll("$name", video.name).replaceAll("$index", i);
+                            if(i == data.playing){
+                                clone.classList.add("playing");
+                            }
+                            vidlist.append(clone);
+                        }
+                    }
+                    pauseButton.innerText = data.paused ? "Play" : "Pause";
+                    pauseButton.setAttribute("paused", data.paused);
+                    paused = data.paused;
+                    subsButton.innerText = data.subs ? "Subtitles on" : "Subtitles off";
+                    subsButton.setAttribute("subs", data.subs);
+                    subson = data.subs;
+                    seekbar.max = data.playingLength;
+                    seekbar.value = data.playingPosition;
+                    qualitySetting.value = data.quality;
+                };
+                return webSocket.readyState == WebSocket.OPEN;
+            }
+
+            reopenSocket();
+
+            function prev(){
+                if(reopenSocket()){
+                    webSocket.send("prev");
+                }
+                
+            }
+
+            function next(){
+                if(reopenSocket()){webSocket.send("next");}
+            }
+
+            function stop(){
+                if(reopenSocket()){webSocket.send("stop");}
+            }
+
+            function skipBack(){
+                if(reopenSocket()){webSocket.send("skipBack");}
+            }
+
+            function skipForward(){
+                if(reopenSocket()){webSocket.send("skipForward");}
+            }
+
+            function pause(){
+                if(reopenSocket()){
+                    if(paused){
+                        webSocket.send("play");
+                    }else{
+                        webSocket.send("pause");
+                    }
+                }
+            }
+
+            function seek(){
+                if(reopenSocket()){webSocket.send("seek" + seekbar.value);}
+            }
+
+            function quality(){
+                if(reopenSocket()){webSocket.send("q"+qualitySetting.value);}
+            }
+
+            function subs(){
+                if(reopenSocket()){webSocket.send(subson ? "subsOff" : "subsOn");}
+            }
+
+            function remove(i){
+                if(reopenSocket()){webSocket.send("remove" + i);}
+            }
+
+            window.setInterval(reopenSocket, 1000);
+            
+        </script>
     </body>
 </html>
