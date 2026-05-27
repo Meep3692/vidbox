@@ -1,8 +1,5 @@
 package ca.awoo.ytdl;
 
-import io.micronaut.serde.annotation.Serdeable;
-
-@Serdeable
 public class Thumbnail {
     private final String url;
     private final int preference;

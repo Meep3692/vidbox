@@ -1,8 +1,5 @@
 package ca.awoo.ytdl;
 
-import io.micronaut.serde.annotation.Serdeable;
-
-@Serdeable
 public class Caption {
     private final String url;
     private final String ext;

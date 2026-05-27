@@ -1,14 +1,11 @@
 package ca.awoo.ytdl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
-import io.micronaut.serde.annotation.Serdeable;
-
-@Serdeable
 public class Format {
-    @JsonProperty("format_id")
+    @JsonbProperty("format_id")
     private final String formatId;
-    @JsonProperty("format_note")
+    @JsonbProperty("format_note")
     private final String formatNote;
     private final String format;
     private final String ext;
@@ -19,9 +16,9 @@ public class Format {
     private final int width;
     private final int height;
     private final double fps;
-    @JsonProperty("audio_ext")
+    @JsonbProperty("audio_ext")
     private final String audioExt;
-    @JsonProperty("video_ext")
+    @JsonbProperty("video_ext")
     private final String videoExt;
     private final int quality;
 

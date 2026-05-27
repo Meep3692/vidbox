@@ -2,11 +2,9 @@ package ca.awoo.ytdl;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
-import io.micronaut.serde.annotation.Serdeable;
 
-@Serdeable
 public class Video {
     private final String id;
     private final String title;
@@ -14,29 +12,29 @@ public class Video {
     private final Thumbnail[] thumbnails;
     private final String thumbnail;
     private final String description;
-    @JsonProperty("channel_id")
+    @JsonbProperty("channel_id")
     private final String channelId;
-    @JsonProperty("channel_url")
+    @JsonbProperty("channel_url")
     private final String channelUrl;
-    @JsonProperty("view_count")
+    @JsonbProperty("view_count")
     private final int viewCount;
-    @JsonProperty("automatic_captions")
+    @JsonbProperty("automatic_captions")
     private final Map<String, Caption[]> automaticCaptions;
     private final Map<String, Caption[]> subtitles;
     private final String location;
-    @JsonProperty("like_count")
+    @JsonbProperty("like_count")
     private final int likeCount;
     private final String uploader;
-    @JsonProperty("uploader_id")
+    @JsonbProperty("uploader_id")
     private final String uploaderId;
-    @JsonProperty("uploader_url")
+    @JsonbProperty("uploader_url")
     private final String uploaderUrl;
-    @JsonProperty("original_url")
+    @JsonbProperty("original_url")
     private final String originalUrl;
-    @JsonProperty("webpage_url")
+    @JsonbProperty("webpage_url")
     private final String webpageUrl;
     private final String url;
-    @JsonProperty("requested_formats")
+    @JsonbProperty("requested_formats")
     private final Format[] requestedFormats;
     private final String fulltitle;
     public Video(String id, String title, Format[] formats, Thumbnail[] thumbnails, String thumbnail,
