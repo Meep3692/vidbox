@@ -11,8 +11,18 @@
     <servlet-class>ca.awoo.vidbox.TestServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>PlayerControls</servlet-name>
+    <servlet-class>ca.awoo.vidbox.PlayerControls</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>TestServlet</servlet-name>
     <url-pattern>/test</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>PlayerControls</servlet-name>
+    <url-pattern>/player</url-pattern>
   </servlet-mapping>
 </web-app>    

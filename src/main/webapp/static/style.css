@@ -141,46 +141,46 @@
 }
 
 #prevButton {
-    background-image: url("/static/media-skip-backward.png");
+    background-image: url("media-skip-backward.png");
 }
 
 #skipBackButton {
-    background-image: url("/static/media-seek-backward.png");
+    background-image: url("media-seek-backward.png");
 }
 
 #pauseButton {
-    background-image: url("/static/media-playback-pause.png");
+    background-image: url("media-playback-pause.png");
 }
 
 #pauseButton[paused="true"] {
-    background-image: url("/static/media-playback-start.png");
+    background-image: url("media-playback-start.png");
 }
 
 #skipForwardButton {
-    background-image: url("/static/media-seek-forward.png");
+    background-image: url("media-seek-forward.png");
 }
 
 #nextButton {
-    background-image: url("/static/media-skip-forward.png");
+    background-image: url("media-skip-forward.png");
 }
 
 #stopButton {
-    background-image: url("/static/media-playback-stop.png");
+    background-image: url("media-playback-stop.png");
 }
 
 #subsButton {
-    background-image: url("/static/media-subtitle.png");
+    background-image: url("media-subtitle.png");
 }
 
 #subsButton[subs="true"] {
-    background-image: url("/static/media-subtitle-filled.png");
+    background-image: url("media-subtitle-filled.png");
 }
 
 .removeButton {
     position:absolute;
     right:0;
     top:0;
-    background-image: url("/static/remove.png");
+    background-image: url("remove.png");
     height:     2em;
     width:      2em;
     min-width:  2em;

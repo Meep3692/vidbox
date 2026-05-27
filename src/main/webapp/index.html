@@ -1,1 +1,69 @@
-<h1>eeby deeby</h1>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            Player
+        </title>
+        <link rel="stylesheet" href="static/style.css">
+        <link rel="preload" href="static/media-playback-pause.png" as="image">
+        <link rel="preload" href="static/media-playback-start.png" as="image">
+        <link rel="preload" href="static/media-playback-stop.png" as="image">
+        <link rel="preload" href="static/media-playback-start.png" as="image">
+        <link rel="preload" href="static/media-seek-backward.png" as="image">
+        <link rel="preload" href="static/media-seek-forward.png" as="image">
+        <link rel="preload" href="static/media-skip-backward.png" as="image">
+        <link rel="preload" href="static/media-skip-forward.png" as="image">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/htmx-ext-ws@2.0.4" integrity="sha384-1RwI/nvUSrMRuNj7hX1+27J8XDdCoSLf0EjEyF69nacuWyiJYoQ/j39RT1mSnd2G" crossorigin="anonymous"></script>
+    </head>
+    <body hx-ext="ws" ws-connect="controls">
+        <h1>Player</h1>
+        <div class="controls-container">
+            <select id="quality-setting" label="Video quality" onchange="quality()">
+                <option value="144">144p</option>
+                <option value="240">240p</option>
+                <option value="480">480p</option>
+                <option value="540">540p</option>
+                <option value="720">720p</option>
+                <option value="1080">1080p</option>
+                <option value="2160">4k</option>
+                <option value="4320">8k</option>
+            </select>
+            <button class="playback-controls" id="prevButton"        onclick="prev()"       >Prev</button>
+            <button class="playback-controls" id="skipBackButton"    onclick="skipBack()"   >Seek back</button>
+            <button class="playback-controls" id="pauseButton"       onclick="pause()"      >Pause</button>
+            <button class="playback-controls" id="skipForwardButton" onclick="skipForward()">Seek forward</button>
+            <button class="playback-controls" id="nextButton"        onclick="next()"       >Next</button>
+            <button class="playback-controls" id="stopButton"        onclick="stop()"       >Stop</button>
+            <button class="playback-controls" id="subsButton"        onclick="subs()"       >Subtitles off</button>
+        </div><input id="seekbar" onchange="seek()" label="Seek bar" type="range" min="0" max="100" value="0">
+        <h2>Playlist</h2>
+        <form id="queue-form" ws-send>
+            <label id="source-label" for="source">Source</label>
+            <input id="source-box" type="text" name="source" placeholder="Source URL">
+            <input id="queue-button" type="submit" value="Enqueue">
+        </form>
+        <ol id="vidlist">
+            
+        </ol>
+        <template id="video-template">
+            <li class="playlist">
+                <div class="video">
+                    <div class="video-thumbnail-container">
+                        <img class="video-thumbnail" src="/thumbnail.png?source=$source"/>
+                    </div>
+                    <div class="video-details">
+                        <a href="/player/skipto/$index">
+                            <h2 class="video-title">$name</h2>
+                        </a>
+                        <p class="video-source">
+                            $source
+                        </p>
+                    </div>
+                    <button class="removeButton" onclick="remove($index)">Remove</button>
+                </div>
+            </li>
+        </template>
+    </body>
+</html>
