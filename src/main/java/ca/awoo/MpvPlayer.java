@@ -46,17 +46,19 @@ public class MpvPlayer implements Player {
 
     private static final Logger LOG = LoggerFactory.getLogger(MpvPlayer.class);
 
-    public MpvPlayer(EmbeddedServer embeddedServer, SourceProvider sourceProvider, PlayerOption... options) throws MpvException{
+    public MpvPlayer(EmbeddedServer embeddedServer, SourceProvider sourceProvider, PlayerOption... options)
+            throws MpvException {
         this.sourceProvider = sourceProvider;
         this.mpv = MPV.INSTANCE;
-        if(Platform.isLinux())
+        if (Platform.isLinux())
             CLib.INSTANCE.setlocale(CLib.LC_NUMERIC, "C");
         this.handle = mpv.mpv_create();
-        if(handle == 0) throw new RuntimeException("Cannot make MPV");
-        for(PlayerOption option : options){
-            if(option.option()){
+        if (handle == 0)
+            throw new RuntimeException("Cannot make MPV");
+        for (PlayerOption option : options) {
+            if (option.option()) {
                 setOption(option);
-            }else{
+            } else {
                 setProperty(option);
             }
         }
@@ -65,29 +67,29 @@ public class MpvPlayer implements Player {
             InetAddress localhost = InetAddress.getLocalHost();
             InetAddress[] addresses = InetAddress.getAllByName(localhost.getCanonicalHostName());
             Map<InetAddress, Integer> addressScores = new HashMap<>();
-            for(InetAddress address : addresses){
+            for (InetAddress address : addresses) {
                 int score = 0;
                 byte[] bparts = address.getAddress();
                 short[] parts = new short[bparts.length];
-                if(bparts.length > 4){
+                if (bparts.length > 4) {
                     continue;
                 }
-                for(int i = 0; i < bparts.length; i++){
-                    if(bparts[i] < 0){
+                for (int i = 0; i < bparts.length; i++) {
+                    if (bparts[i] < 0) {
                         parts[i] = (short) (bparts[i] + 256);
-                    }else{
+                    } else {
                         parts[i] = bparts[i];
                     }
                 }
-                if(parts[0] == 10){
+                if (parts[0] == 10) {
                     score += 4;
                 }
-                if(parts[0] == 192){
+                if (parts[0] == 192) {
                     score++;
-                    if(parts[1] == 168){
+                    if (parts[1] == 168) {
                         score++;
-                        for(int i = 7; i >= 0; i--){
-                            if((parts[2] & (1 << i)) == 0){
+                        for (int i = 7; i >= 0; i--) {
+                            if ((parts[2] & (1 << i)) == 0) {
                                 score++;
                             }
                         }
@@ -95,31 +97,32 @@ public class MpvPlayer implements Player {
                 }
                 addressScores.put(address, score);
             }
-            for(Entry<InetAddress, Integer> entry : addressScores.entrySet()){
+            for (Entry<InetAddress, Integer> entry : addressScores.entrySet()) {
                 LOG.debug(entry.getKey() + ": " + entry.getValue());
             }
-            InetAddress address = addressScores.entrySet().stream().sorted((e1, e2) -> e1.getValue() - e2.getValue()).findFirst().get().getKey();
+            InetAddress address = addressScores.entrySet().stream().sorted((e1, e2) -> e1.getValue() - e2.getValue())
+                    .findFirst().get().getKey();
             String urlString = "http://" + address.getHostAddress() + ":" + embeddedServer.getPort() + "/player";
             LOG.debug(urlString);
             setProperty("osd-msg1", urlString);
         } catch (UnknownHostException e) {
-            //wat
+            // wat
         }
 
         int error;
         error = mpv.mpv_initialize(handle);
-        if(error != 0){
+        if (error != 0) {
             throw new MpvException(error, "Failed to initialize player");
         }
         listenThread = new Thread(() -> {
-            while(true){
+            while (true) {
                 MpvEvent event = waitEvent(10);
                 LOG.debug(event.toString());
-                switch(event){
+                switch (event) {
                     case MPV_EVENT_SHUTDOWN:
                         return;
                     case MPV_EVENT_FILE_LOADED:
-                        if(loadseek > 0){
+                        if (loadseek > 0) {
                             seek(loadseek);
                             loadseek = 0;
                         }
@@ -137,71 +140,72 @@ public class MpvPlayer implements Player {
         listenThread.start();
     }
 
-    private void command(String... command) throws MpvException{
+    private void command(String... command) throws MpvException {
         int error = mpv.mpv_command(handle, command);
-        if(error != 0){
-            throw new MpvException(error);
+        if (error != 0) {
+            throw new MpvException(error, String.join(" ", command));
         }
     }
 
-    private String getProperty(String name){
+    private String getProperty(String name) {
         Pointer p = mpv.mpv_get_property_string(handle, name);
-        if(p == null) return null;
+        if (p == null)
+            return null;
         return p.getString(0, "UTF-8");
     }
 
-    private int getIntProperty(String name){
+    private int getIntProperty(String name) {
         return Integer.parseInt(getProperty(name));
     }
 
-    private double getDoubleProperty(String name){
+    private double getDoubleProperty(String name) {
         return Double.parseDouble(getProperty(name));
     }
 
-    private boolean getBoolProperty(String name){
+    private boolean getBoolProperty(String name) {
         String prop = getProperty(name);
-        if(prop.equals("yes")){
+        if (prop.equals("yes")) {
             return true;
-        }else if(prop.equals("no")){
+        } else if (prop.equals("no")) {
             return false;
-        }else{
+        } else {
             throw new RuntimeException("Unexpected bool: " + prop);
         }
     }
 
-    private void setProperty(String name, String value){
+    private void setProperty(String name, String value) {
         int error = mpv.mpv_set_property_string(handle, name, value);
-        if(error != 0){
+        if (error != 0) {
             throw new RuntimeException("oops: " + error);
         }
     }
 
-    public boolean isPaused(){
+    public boolean isPaused() {
         return getBoolProperty("pause");
     }
 
-    private MpvEvent waitEvent(double timeout){
+    private MpvEvent waitEvent(double timeout) {
         mpv_event nativeEvent = mpv.mpv_wait_event(handle, 10);
         MpvEvent event = MpvEvent.fromValue(nativeEvent.event_id);
         return event;
     }
 
     // @Override
-    public void setProperty(PlayerOption option) throws MpvException{
-        synchronized(this){
+    public void setProperty(PlayerOption option) throws MpvException {
+        synchronized (this) {
             int error = mpv.mpv_set_property_string(handle, option.name(), option.value());
-            if(error != 0){
-                //TODO: not this
+            if (error != 0) {
+                // TODO: not this
                 throw new MpvException(error);
             }
         }
     }
 
-    private void setOption(PlayerOption option) throws MpvException{
-        synchronized(this){
+    private void setOption(PlayerOption option) throws MpvException {
+        synchronized (this) {
             int error = mpv.mpv_set_option_string(handle, option.name(), option.value());
-            if(error != 0){
-                //TODO: not this
+            if (error != 0) {
+                // TODO: not this
                 throw new MpvException(error);
             }
         }
@@ -209,13 +213,14 @@ public class MpvPlayer implements Player {
 
     @Override
     public void enqueue(String source) {
-        synchronized(this){
+        synchronized (this) {
+            LOG.trace("Enqueuing: " + source);
             List<Video> videosToAdd = sourceProvider.expandSources(source);
             boolean startPlayback = currentIndex < 0;
-            for(Video v : videosToAdd){
+            for (Video v : videosToAdd) {
                 playlist.add(v);
             }
-            if(startPlayback && !playlist.isEmpty()){
+            if (startPlayback && !playlist.isEmpty()) {
                 currentIndex = 0;
                 playCurrent(true);
             }
@@ -225,15 +230,15 @@ public class MpvPlayer implements Player {
 
     @Override
     public List<VideoInfo> getPlaylist() {
-        synchronized(this){
+        synchronized (this) {
             List<VideoInfo> list = new ArrayList<>(playlist.size());
-            for(Video video : playlist){
+            for (Video video : playlist) {
                 String title = null;
-                try{
+                try {
                     CompletableFuture<String> titleFuture = video.getTitle();
                     // Do not block; titles will be cached and filled in on later passes.
                     title = titleFuture.getNow("Pending...");
-                }catch(Throwable t){
+                } catch (Throwable t) {
                     LOG.warn("Failed to get title for {}", video.getSource(), t);
                 }
                 list.add(new VideoInfo(title, video.getSource()));
@@ -244,16 +249,16 @@ public class MpvPlayer implements Player {
 
     @Override
     public VideoInfo nowPlaying() {
-        synchronized(this){
-            if(currentIndex < 0 || currentIndex >= playlist.size()){
+        synchronized (this) {
+            if (currentIndex < 0 || currentIndex >= playlist.size()) {
                 return null;
             }
             Video video = playlist.get(currentIndex);
             String title = null;
-            try{
+            try {
                 CompletableFuture<String> titleFuture = video.getTitle();
                 title = titleFuture.getNow("Pending...");
-            }catch(Throwable t){
+            } catch (Throwable t) {
                 LOG.warn("Failed to get title for now playing {}", video.getSource(), t);
             }
             return new VideoInfo(title, video.getSource());
@@ -262,17 +267,17 @@ public class MpvPlayer implements Player {
 
     @Override
     public void playIndex(int index) {
-        synchronized(this){
-            if(index < 0 || index >= playlist.size()){
+        synchronized (this) {
+            if (index < 0 || index >= playlist.size()) {
                 // Treat invalid index or -1 as stop.
                 currentIndex = -1;
-                try{
+                try {
                     suppressNextEnd = true;
                     command("stop");
-                }catch(MpvException e){
+                } catch (MpvException e) {
                     LOG.warn("Failed to stop mpv", e);
                 }
-            }else{
+            } else {
                 currentIndex = index;
                 playCurrent(true);
             }
@@ -280,44 +285,49 @@ public class MpvPlayer implements Player {
         }
     }
 
-    public double playingLength(){
+    public double playingLength() {
         String prop = getProperty("duration/full");
-        if(prop == null) return 0;
+        if (prop == null)
+            return 0;
         return getDoubleProperty("duration/full");
     }
 
     @Override
-    public double playingPosition(){
+    public double playingPosition() {
         String prop = getProperty("time-pos/full");
-        if(prop == null) return 0;
+        if (prop == null)
+            return 0;
         return getDoubleProperty("time-pos/full");
     }
 
-    public boolean getSubtitles(){
+    public boolean getSubtitles() {
         String prop = getProperty("sid");
-        if(prop == null) return false;
+        if (prop == null)
+            return false;
         return !prop.equals("no");
     }
 
     @Override
     public PlayerState getState() {
-        return new PlayerState(getPlaylist(), getPlaylistPosition(), isPaused(), playingLength(), playingPosition(), quality, getSubtitles());
+        return new PlayerState(getPlaylist(), getPlaylistPosition(), isPaused(), playingLength(), playingPosition(),
+                quality, getSubtitles());
     }
 
     @Override
-    public PlayerState getStateWithoutPlaylist(){
-        return new PlayerState(null, getPlaylistPosition(), isPaused(), playingLength(), playingPosition(), quality, getSubtitles());
+    public PlayerState getStateWithoutPlaylist() {
+        return new PlayerState(null, getPlaylistPosition(), isPaused(), playingLength(), playingPosition(), quality,
+                getSubtitles());
     }
 
     @Override
     public void prev() {
-        synchronized(this){
-            if(playlist.isEmpty()){
+        synchronized (this) {
+            if (playlist.isEmpty()) {
                 return;
             }
-            if(currentIndex <= 0){
+            if (currentIndex <= 0) {
                 currentIndex = 0;
-            }else{
+            } else {
                 currentIndex--;
             }
             playCurrent(true);
@@ -339,15 +349,15 @@ public class MpvPlayer implements Player {
 
     @Override
     public void next() {
-        synchronized(this){
-            if(playlist.isEmpty()){
+        synchronized (this) {
+            if (playlist.isEmpty()) {
                 return;
             }
-            if(currentIndex < 0){
+            if (currentIndex < 0) {
                 currentIndex = 0;
-            }else if(currentIndex < playlist.size() - 1){
+            } else if (currentIndex < playlist.size() - 1) {
                 currentIndex++;
-            }else{
+            } else {
                 currentIndex = playlist.size() - 1;
             }
             playCurrent(true);
@@ -356,25 +366,25 @@ public class MpvPlayer implements Player {
     }
 
     @Override
-    public void seek(double pos){
+    public void seek(double pos) {
         command("seek", Double.toString(pos), "absolute");
     }
 
     @Override
-    public void seekRelative(double pos){
+    public void seekRelative(double pos) {
         command("seek", Double.toString(pos), "relative");
     }
 
-    //Thank you https://github.com/christoph-heinrich/mpv-quality-menu
-    //who thanks https://github.com/4e6/mpv-reload/
-    private void standingReload(){
+    // Thank you https://github.com/christoph-heinrich/mpv-quality-menu
+    // who thanks https://github.com/4e6/mpv-reload/
+    private void standingReload() {
         double duration = playingLength();
         double position = playingPosition();
-        //Check for live streams
-        if(duration > 0){
-            synchronized(this){
+        // Check for live streams
+        if (duration > 0) {
+            synchronized (this) {
                 loadseek = position;
-                if(currentIndex >= 0 && currentIndex < playlist.size()){
+                if (currentIndex >= 0 && currentIndex < playlist.size()) {
                     playCurrent(true);
                 }
             }
@@ -382,31 +392,29 @@ public class MpvPlayer implements Player {
     }
 
     @Override
-    public void setQuality(int scan){
+    public void setQuality(int scan) {
         this.quality = scan;
-        String format = "bv*[height<=" + scan + "]+ba/b[height<=" + scan + "]/bv+ba/b";
-        LOG.debug(format);
-        setProperty("ytdl-format", format);
+        LOG.debug("Setting quality to {}", scan);
         standingReload();
     }
 
     @Override
-    public void subtitles(boolean on){
+    public void subtitles(boolean on) {
         setProperty("sid", on ? "auto" : "no");
         notifyChange();
     }
 
     private Consumer<PlayerState> changeListener;
 
-    public void onChange(Consumer<PlayerState> listener){
+    public void onChange(Consumer<PlayerState> listener) {
         this.changeListener = listener;
     }
 
-    private void notifyChange(){
-        if(changeListener != null){
+    private void notifyChange() {
+        if (changeListener != null) {
             changeListener.accept(getState());
         }
-        setProperty("osd-level", getPlaylistPosition() < 0 ? "3" : "0");
+        setProperty("osd-level", getPlaylistPosition() < 0 ? "1" : "0");
     }
 
     @Override
@@ -416,26 +424,26 @@ public class MpvPlayer implements Player {
 
     @Override
     public void remove(int index) {
-        synchronized(this){
-            if(index < 0 || index >= playlist.size()){
+        synchronized (this) {
+            if (index < 0 || index >= playlist.size()) {
                 return;
             }
             playlist.remove(index);
-            if(index < currentIndex){
+            if (index < currentIndex) {
                 currentIndex--;
-            }else if(index == currentIndex){
-                if(playlist.isEmpty()){
+            } else if (index == currentIndex) {
+                if (playlist.isEmpty()) {
                     currentIndex = -1;
-                    try{
+                    try {
                         suppressNextEnd = true;
                         command("stop");
-                    }catch(MpvException e){
+                    } catch (MpvException e) {
                         LOG.warn("Failed to stop mpv after remove", e);
                     }
-                }else if(currentIndex >= playlist.size()){
+                } else if (currentIndex >= playlist.size()) {
                     currentIndex = playlist.size() - 1;
                     playCurrent(true);
-                }else{
+                } else {
                     // Same index now points to next item.
                     playCurrent(true);
                 }
@@ -444,8 +452,8 @@ public class MpvPlayer implements Player {
         }
     }
 
-    private int getPlaylistPosition(){
-        synchronized(this){
+    private int getPlaylistPosition() {
+        synchronized (this) {
             return currentIndex;
         }
     }
@@ -457,23 +465,38 @@ public class MpvPlayer implements Player {
      *                    (used for intentional transitions such as user skips
      *                    or quality reloads).
      */
-    private void playCurrent(boolean suppressEnd){
-        synchronized(this){
-            if(currentIndex < 0 || currentIndex >= playlist.size()){
+    private void playCurrent(boolean suppressEnd) {
+        synchronized (this) {
+            if (currentIndex < 0 || currentIndex >= playlist.size()) {
                 return;
             }
             Video video = playlist.get(currentIndex);
-            String source = video.getSource();
-            try{
-                if(suppressEnd){
-                    suppressNextEnd = true;
+            final int indexOnStart = currentIndex;
+
+            video.getStream(quality).thenAccept(streamInfo -> {
+                synchronized (MpvPlayer.this) {
+                    if (currentIndex != indexOnStart) {
+                        // User skipped or playlist changed while resolving
+                        return;
+                    }
+                    try {
+                        if (suppressEnd) {
+                            suppressNextEnd = true;
+                        }
+                        command("loadfile", streamInfo.videoUrl, "replace");
+                        if (streamInfo.audioUrl != null) {
+                            command("audio-add", streamInfo.audioUrl, "select");
+                        }
+                        // Ensure we actually play the file
+                        setProperty("pause", "no");
+                    } catch (MpvException e) {
+                        LOG.error("Failed to play resolved stream {}", streamInfo.videoUrl, e);
+                    }
                 }
-                command("loadfile", source, "replace");
-                // Ensure we actually play the file
-                setProperty("pause", "no");
-            }catch(MpvException e){
-                LOG.error("Failed to play source {}", source, e);
-            }
+            }).exceptionally(t -> {
+                LOG.error("Failed to resolve stream for {}", video.getSource(), t);
+                return null;
+            });
         }
     }
 
@@ -481,19 +504,19 @@ public class MpvPlayer implements Player {
      * Handle natural end-of-file events from mpv by advancing the Java-owned
      * playlist when appropriate.
      */
-    private void handleEndOfFile(){
-        synchronized(this){
-            if(suppressNextEnd){
+    private void handleEndOfFile() {
+        synchronized (this) {
+            if (suppressNextEnd) {
                 suppressNextEnd = false;
                 return;
             }
-            if(currentIndex < 0){
+            if (currentIndex < 0) {
                 return;
             }
-            if(currentIndex + 1 < playlist.size()){
+            if (currentIndex + 1 < playlist.size()) {
                 currentIndex++;
                 playCurrent(false);
-            }else{
+            } else {
                 currentIndex = -1;
             }
             notifyChange();

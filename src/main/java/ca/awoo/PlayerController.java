@@ -10,6 +10,10 @@ import io.micronaut.views.View;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 
@@ -17,14 +21,17 @@ import io.micronaut.http.MediaType;
 public class PlayerController {
     private Player player;
 
-    public PlayerController(Player player){
+    private static final Logger LOG = LoggerFactory.getLogger(PlayerController.class);
+
+    public PlayerController(Player player) {
         this.player = player;
     }
 
     @Post("enqueue")
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.ALL)
-    public String enqueue(String source){
+    public String enqueue(String source) {
+        LOG.trace("Enqueuing: " + source);
         player.enqueue(source);
         return source;
     }
@@ -32,8 +39,10 @@ public class PlayerController {
     @Post("enqueue")
     @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.ALL)
-    public HttpResponse<String> enqueueWeb(String source) throws URISyntaxException{
+    public HttpResponse<String> enqueueWeb(String source) throws URISyntaxException {
+        LOG.trace("Enqueuing: " + source);
         player.enqueue(source);
+        LOG.trace("Redirecting to /player");
         URI location = new URI("/player");
         return HttpResponse.redirect(location);
     }
@@ -41,7 +50,7 @@ public class PlayerController {
     @Get("skipto/{index}")
     @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.ALL)
-    public HttpResponse<Void> skipTo(@PathVariable Integer index) throws URISyntaxException{
+    public HttpResponse<Void> skipTo(@PathVariable Integer index) throws URISyntaxException {
         player.playIndex(index);
         URI location = new URI("/player");
         return HttpResponse.temporaryRedirect(location);
@@ -50,7 +59,7 @@ public class PlayerController {
     @Produces(MediaType.TEXT_HTML + ";charset=utf-8")
     @View("player.html")
     @Get
-    public HttpResponse<PlayerState> index(){
+    public HttpResponse<PlayerState> index() {
         return HttpResponse.ok(player.getState()).header("Cache-Control", "no-store");
     }
 }

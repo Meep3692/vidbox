@@ -33,11 +33,16 @@ public class Video {
     private final String uploaderUrl;
     @JsonProperty("original_url")
     private final String originalUrl;
+    @JsonProperty("webpage_url")
+    private final String webpageUrl;
+    private final String url;
+    @JsonProperty("requested_formats")
+    private final Format[] requestedFormats;
     private final String fulltitle;
     public Video(String id, String title, Format[] formats, Thumbnail[] thumbnails, String thumbnail,
             String description, String channelId, String channelUrl, int viewCount,
             Map<String, Caption[]> automaticCaptions, Map<String, Caption[]> subtitles, String location, int likeCount,
-            String uploader, String uploaderId, String uploaderUrl, String originalUrl, String fulltitle) {
+            String uploader, String uploaderId, String uploaderUrl, String originalUrl, String webpageUrl, String url, Format[] requestedFormats, String fulltitle) {
         this.id = id;
         this.title = title;
         this.formats = formats;
@@ -55,6 +60,9 @@ public class Video {
         this.uploaderId = uploaderId;
         this.uploaderUrl = uploaderUrl;
         this.originalUrl = originalUrl;
+        this.webpageUrl = webpageUrl;
+        this.url = url;
+        this.requestedFormats = requestedFormats;
         this.fulltitle = fulltitle;
     }
     public String getId() {
@@ -108,8 +116,17 @@ public class Video {
     public String getOriginalUrl() {
         return originalUrl;
     }
+    public String getUrl() {
+        return url;
+    }
+    public String getWebpageUrl() {
+        return webpageUrl;
+    }
     public String getFulltitle() {
         return fulltitle;
+    }
+    public Format[] getRequestedFormats() {
+        return requestedFormats;
     }
 
     

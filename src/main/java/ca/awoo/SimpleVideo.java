@@ -34,4 +34,9 @@ public class SimpleVideo implements Video {
     public CompletableFuture<BufferedImage> getThumbnail() {
         return CompletableFuture.completedFuture(noThumbnail);
     }
+
+    @Override
+    public CompletableFuture<StreamInfo> getStream(int quality) {
+        return CompletableFuture.completedFuture(new StreamInfo(source, null));
+    }
 }

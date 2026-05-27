@@ -33,8 +33,7 @@ public class PlayerFactory {
             new PlayerOption("auto-window-resize", "no"),
             new PlayerOption("slang", "en"),
             new PlayerOption("sub-auto", "fuzzy"),
-            new PlayerOption("ytdl-raw-options", "cookies-from-browser=firefox,sub-langs=\"en,en-US\",write-subs=,write-auto-subs="),
-            new PlayerOption("ytdl-format", "bv*[height<=480]+ba/b[height<=480]/bv+ba/b"),
+            new PlayerOption("ytdl", "no"),
             new PlayerOption("config-dir", configDir.toAbsolutePath().toString(), true),
             new PlayerOption("config", "yes", true)
             );
