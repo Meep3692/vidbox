@@ -1,4 +1,4 @@
-package ca.awoo;
+package ca.awoo.vidbox;
 
 public enum MpvError {
 

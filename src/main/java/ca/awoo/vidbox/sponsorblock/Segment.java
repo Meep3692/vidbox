@@ -1,4 +1,4 @@
-package ca.awoo.sponsorblock;
+package ca.awoo.vidbox.sponsorblock;
 
 public record Segment(float[] segment,
                       String uuid,

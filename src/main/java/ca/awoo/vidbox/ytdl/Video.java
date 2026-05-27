@@ -1,4 +1,4 @@
-package ca.awoo.ytdl;
+package ca.awoo.vidbox.ytdl;
 
 import java.util.Map;
 
