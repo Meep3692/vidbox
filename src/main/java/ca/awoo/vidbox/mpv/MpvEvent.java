@@ -1,4 +1,4 @@
-package ca.awoo.vidbox;
+package ca.awoo.vidbox.mpv;
 
 public enum MpvEvent {
     /**

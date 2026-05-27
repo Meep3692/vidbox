@@ -1,4 +1,4 @@
-package ca.awoo.vidbox;
+package ca.awoo.vidbox.mpv;
 
 import java.util.Arrays;
 import java.util.Collections;

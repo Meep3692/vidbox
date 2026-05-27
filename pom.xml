@@ -11,6 +11,8 @@
     <packaging>jar</packaging>
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
+    <jetty.version>11.0.9</jetty.version>
+        <jersey.version>3.0.5</jersey.version>
   </properties>
 
   <repositories>
@@ -30,6 +32,12 @@
       <groupId>net.java.dev.jna</groupId>
       <artifactId>jna</artifactId>
       <version>5.15.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <version>2.0.18</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>jakarta.platform</groupId>
@@ -52,6 +60,14 @@
   </dependencies>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-maven3-plugin</artifactId>
+        <version>1.10.27</version>
+        <configuration>
+          <containerId>tomee10x</containerId>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

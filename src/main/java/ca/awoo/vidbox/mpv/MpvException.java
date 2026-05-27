@@ -1,4 +1,4 @@
-package ca.awoo.vidbox;
+package ca.awoo.vidbox.mpv;
 
 public class MpvException extends RuntimeException{
     private final MpvError cause;
