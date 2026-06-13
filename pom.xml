@@ -65,7 +65,19 @@
         <artifactId>cargo-maven3-plugin</artifactId>
         <version>1.10.27</version>
         <configuration>
-          <containerId>tomee10x</containerId>
+          <container>
+            <containerId>tomee10x</containerId>
+          </container>
+          <configuration>
+            <properties>
+              <cargo.start.jvmargs>
+                -Xdebug
+                -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
+                -Xnoagent
+                -Djava.compiler=NONE
+              </cargo.start.jvmargs>
+            </properties>
+          </configuration>
         </configuration>
       </plugin>
     </plugins>

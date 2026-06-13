@@ -8,9 +8,12 @@ public interface Renderer {
     public void playStream(Stream stream);
     public void seek(float offset, Whence whence);
     public float getPos();
+    public boolean isPlaying();
     public default void swapStream(Stream newStream){
         float oldPos = getPos();
         playStream(newStream);
         seek(oldPos, Whence.BEGGINING);
     }
+
+    public Event<Stream> onStreamEnd();
 }

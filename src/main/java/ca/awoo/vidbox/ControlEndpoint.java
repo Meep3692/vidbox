@@ -1,8 +1,8 @@
 package ca.awoo.vidbox;
 
-import java.io.IOException;
+import java.net.URI;
+import java.util.logging.Logger;
 
-import ca.awoo.vidbox.Renderer.Whence;
 import jakarta.inject.Inject;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.Session;
@@ -14,14 +14,20 @@ public class ControlEndpoint {
     @Inject
     private Renderer renderer;
 
+    @Inject
+    private Playlist playlist;
+
+    Logger log = Logger.getLogger(getClass().getName());
+
     @OnMessage
     public void onMessage(Session session, String msg){
-        try {
-            session.getBasicRemote().sendText(msg);
-            renderer.seek(0, Whence.BEGGINING);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if(msg.startsWith("enqueue")){
+            String url = msg.substring("enqueue".length());
+            log.info("Queueing new url: " + url);
+            Stream stream = new Stream(URI.create(url), null, null);
+            // renderer.playStream(stream);
+            playlist.enqueue(stream);
+            log.info("Queued new url: " + url);
         }
     }
 }

@@ -2,7 +2,6 @@ package ca.awoo.vidbox;
 
 import java.io.IOException;
 
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;

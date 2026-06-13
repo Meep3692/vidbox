@@ -37,7 +37,7 @@
             <button class="playback-controls" id="subsButton"        onclick="subs()"       >Subtitles off</button>
         </div><input id="seekbar" onchange="seek()" label="Seek bar" type="range" min="0" max="100" value="0">
         <h2>Playlist</h2>
-        <form id="queue-form" action="player/enqueue" method="post" enctype="application/json">
+        <form id="queue-form" >
             <label id="source-label" for="source">Source</label>
             <input id="source-box" type="text" name="source" placeholder="Source URL">
             <input id="queue-button" type="submit" value="Enqueue">
@@ -73,6 +73,14 @@
             const template       = document.getElementById("video-template");
             const pauseButton    = document.getElementById("pauseButton");
             const subsButton     = document.getElementById("subsButton");
+            const queueForm      = document.getElementById("queue-form");
+            const sourceBox      = document.getElementById("source-box");
+
+            queueForm.onsubmit = function(event){
+                event.preventDefault();
+                enqueue()
+                return false;
+            }
 
             function reopenSocket(){
                 if(webSocket && webSocket.readyState == WebSocket.OPEN){
@@ -112,6 +120,12 @@
             }
 
             reopenSocket();
+
+            function enqueue(){
+                if(reopenSocket()){
+                    webSocket.send("enqueue" + sourceBox.value)
+                }
+            }
 
             function prev(){
                 if(reopenSocket()){
