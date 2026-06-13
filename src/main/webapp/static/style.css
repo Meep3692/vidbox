@@ -88,11 +88,16 @@
     color:black;
 }
 
+.video-desc {
+    margin:0;
+}
+
 .video-source {
     margin: 0;
     font-size: 1em;
     text-overflow: ellipsis;
     overflow:hidden;
+    color:#666;
 }
 
 .playing {

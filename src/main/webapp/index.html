@@ -52,9 +52,12 @@
                         <img class="video-thumbnail" src="/thumbnail.png?source=$source"/>
                     </div>
                     <div class="video-details">
-                        <a href="/player/skipto/$index">
+                        <a onclick="skipTo($index)">
                             <h2 class="video-title">$name</h2>
                         </a>
+                        <p class="video-desc">
+                            $desc
+                        </p>
                         <p class="video-source">
                             $source
                         </p>
@@ -93,13 +96,13 @@
                 webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/vidbox/controls");
                 webSocket.onmessage = (msg) => {
                     let data = JSON.parse(msg.data);
-                    // console.log(data);
+                    console.log(data);
                     if(data.playlist){
                         vidlist.innerHTML = "";
                         for(let i = 0; i < data.playlist.length; i++){
                             let video = data.playlist[i];
                             let clone = template.content.firstElementChild.cloneNode(true);
-                            clone.innerHTML = clone.innerHTML.replaceAll("$source", video.source).replaceAll("$name", video.name).replaceAll("$index", i);
+                            clone.innerHTML = clone.innerHTML.replaceAll("$source", video.source).replaceAll("$name", video.title).replaceAll("$desc", video.description).replaceAll("$index", i);
                             if(i == data.playing){
                                 clone.classList.add("playing");
                             }
@@ -148,6 +151,10 @@
 
             function skipForward(){
                 if(reopenSocket()){webSocket.send("skipForward");}
+            }
+
+            function skipTo(index){
+                if(reopenSocket()){webSocket.send("skipTo" + index);}
             }
 
             function pause(){

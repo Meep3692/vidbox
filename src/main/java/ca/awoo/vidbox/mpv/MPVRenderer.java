@@ -109,8 +109,18 @@ public class MPVRenderer implements Renderer {
     }
 
     @Override
-    public boolean isPlaying() {
-        return !getBoolProperty("idle-active");
+    public float getDuration() {
+        return getFloatProperty("duration/full");
+    }
+
+    @Override
+    public boolean isIdle() {
+        return getBoolProperty("idle-active");
+    }
+
+    @Override
+    public boolean isPaused() {
+        return getBoolProperty("pause");
     }
 
     private final Event<Stream> onStreamEndEvent = new Event<>();

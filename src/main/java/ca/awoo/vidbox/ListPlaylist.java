@@ -11,8 +11,9 @@ import jakarta.inject.Inject;
 public class ListPlaylist implements Playlist{
     private final Renderer renderer;
 
-    private final List<Stream> streams = new ArrayList<>();
+    private final List<Video> videos = new ArrayList<>();
     private int position = 0;
+    private int quality = 480;
 
     Logger log = Logger.getLogger(getClass().getName());
 
@@ -29,13 +30,13 @@ public class ListPlaylist implements Playlist{
     }
 
     @Override
-    public void enqueue(Stream stream){
-        streams.add(stream);
-        log.info("Enqueued stream: " + stream);
-        if(!renderer.isPlaying()){
+    public void enqueue(Video video){
+        videos.add(video);
+        log.info("Enqueued stream: " + video);
+        if(renderer.isIdle()){
             log.info("Renderer not playing, starting renderer");
-            position = streams.size()-1;
-            renderer.playStream(stream);
+            position = videos.size()-1;
+            renderer.playStream(video.streams().getStream(quality));
         }else{
             log.info("Renderer already playing. Leaving it alone");
         }
@@ -45,21 +46,34 @@ public class ListPlaylist implements Playlist{
     public void next() {
         log.info("Moving to next file");
         position++;
-        if(position < streams.size()){
+        if(position < videos.size()){
             log.info("Playing next file");
-            renderer.playStream(streams.get(position));
+            renderer.playStream(videos.get(position).streams().getStream(quality));
         }else{
             log.info("End of list");
-            position = streams.size();
+            position = videos.size();
         }
     }
 
     @Override
     public void prev() {
+        log.info("Moving to previous file");
         position--;
         if(position < 0) position = 0;
-        if(position < streams.size()){
-            renderer.playStream(streams.get(position));
+        if(position < videos.size()){
+            log.info("Playing previous file");
+            renderer.playStream(videos.get(position).streams().getStream(quality));
         }
     }
+
+    @Override
+    public List<Video> getVideos() {
+        return videos;
+    }
+
+    @Override
+    public int getPosition() {
+        return position;
+    }
+    
 }
