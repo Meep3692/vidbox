@@ -1,30 +1,24 @@
 package ca.awoo.vidbox;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import jakarta.inject.Inject;
-import jakarta.json.bind.Jsonb;
-import jakarta.json.bind.JsonbBuilder;
-import jakarta.json.bind.JsonbException;
 import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 
-@ServerEndpoint("/controls")
+@ServerEndpoint(value = "/controls", encoders = {PlayerStateEncoder.class})
 public class ControlEndpoint {
 
     @Inject
     private Player player;
 
-    Logger log = Logger.getLogger(getClass().getName());
+    @Inject
+    private ControllerNotifier notifier;
 
-    List<Session> sessions = new ArrayList<>();
+    Logger log = Logger.getLogger(getClass().getName());
 
     public ControlEndpoint() {
         
@@ -32,11 +26,13 @@ public class ControlEndpoint {
 
     @OnOpen
     public void open(Session session, EndpointConfig conf){
-        sessions.add(session);
+        log.info("Controller connected " + session);
+        notifier.addSession(session);
     }
 
     @OnMessage
     public void onMessage(Session session, String msg){
+        log.info("Message from controller: " + msg);
         if(msg.startsWith("enqueue")){
             String url = msg.substring("enqueue".length());
             log.info("Queueing new url: " + url);
@@ -53,13 +49,6 @@ public class ControlEndpoint {
                     log.info("Unknown command from client: " + msg);
             }
         }
-        Jsonb jsonb = JsonbBuilder.create();
-        try {
-            Writer writer = session.getBasicRemote().getSendWriter();
-            jsonb.toJson(player.getState(true), writer);
-            writer.close();
-        } catch (JsonbException | IOException e) {
-            e.printStackTrace();
-        }
+        notifier.broadcastState();
     }
 }
