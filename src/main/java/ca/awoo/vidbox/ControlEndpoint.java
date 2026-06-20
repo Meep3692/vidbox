@@ -37,6 +37,22 @@ public class ControlEndpoint {
             String url = msg.substring("enqueue".length());
             log.info("Queueing new url: " + url);
             player.enqueue(url);
+        }else if(msg.startsWith("skipTo")){
+            int position = Integer.parseInt(msg.substring("skipTo".length()));
+            log.info("Skipping to track " + position);
+            player.skipTo(position);
+        }else if(msg.startsWith("seekTo")){
+            float position = Float.parseFloat(msg.substring("seekTo".length()));
+            log.info("Seeking to position " + position);
+            player.seek(position, Whence.BEGGINING);
+        }else if(msg.startsWith("q")){
+            int quality = Integer.parseInt(msg.substring("q".length()));
+            log.info("Setting quality " + quality);
+            player.setQuality(quality);
+        }else if(msg.startsWith("remove")){
+            int position = Integer.parseInt(msg.substring("remove".length()));
+            log.info("Removing " + position);
+            player.remove(position);
         }else{
             switch(msg){
                 case "pause":
@@ -44,6 +60,27 @@ public class ControlEndpoint {
                     break;
                 case "play":
                     player.resume();
+                    break;
+                case "prev":
+                    player.prev();
+                    break;
+                case "next":
+                    player.next();
+                    break;
+                case "stop":
+                    player.stop();
+                    break;
+                case "seekBack":
+                    player.seek(-5, Whence.CURRENT);
+                    break;
+                case "seekForward":
+                    player.seek(5, Whence.CURRENT);
+                    break;
+                case "subsOn":
+                    player.setSubtitles(true);
+                    break;
+                case "subsOff":
+                    player.setSubtitles(false);
                     break;
                 default:
                     log.info("Unknown command from client: " + msg);

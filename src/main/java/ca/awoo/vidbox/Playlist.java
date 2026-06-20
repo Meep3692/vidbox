@@ -60,6 +60,29 @@ public class Playlist{
         return Optional.empty();
     }
 
+    public Optional<Video> getVideo(){
+        if(position < videos.size()){
+            return Optional.of(videos.get(position));
+        }else{
+            return Optional.empty();
+        }
+    }
+
+    public boolean remove(int index){
+        videos.remove(index);
+        log.info("Removing " + index);
+        if(index == position){
+            log.info("Removing current video");
+            return true;
+        }else if(index < position){
+            log.info("Removing previous video and decrementing position");
+            position--;
+        }else{
+            log.info("Removeing future video and leaving position alone");
+        }
+        return false;
+    }
+
     public List<Video> getVideos() {
         return videos;
     }

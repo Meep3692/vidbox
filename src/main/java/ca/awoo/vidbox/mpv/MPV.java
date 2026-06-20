@@ -288,4 +288,17 @@ public interface MPV extends Library {
             return Arrays.asList(new String[]{"event_id", "error", "reply_userdata", "data"});
         }
     }
+
+    class mpv_event_end_file extends Structure {
+        public long reason;
+        public int error;
+        public long playlist_entry_id;
+        public long playlist_insert_id;
+        public int playlist_insert_num_entries;
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[]{"reason", "error", "playlist_entry_id", "playlist_insert_id", "playlist_insert_num_entries"});
+        }
+    }
 }

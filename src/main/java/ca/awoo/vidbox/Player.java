@@ -9,4 +9,11 @@ public interface Player {
     public void pause();
     public void resume();
     public void skipTo(int index);
+    public void prev();
+    public void next();
+    public void stop();
+    public void seek(float offest, Whence whence);
+    public void setQuality(int quality);
+    public void setSubtitles(boolean subs);
+    public void remove(int index);
 }

@@ -1,10 +1,6 @@
 package ca.awoo.vidbox;
 
 public interface Renderer {
-    public enum Whence{
-        CURRENT,
-        BEGGINING
-    }
     public void playStream(Stream stream);
     public void seek(float offset, Whence whence);
     public float getPos();
@@ -13,6 +9,9 @@ public interface Renderer {
     public boolean isPaused();
     public void pause();
     public void resume();
+    public void stop();
+    public void setSubtitles(boolean subtitles);
+    public void getSubtitles();
     public default void swapStream(Stream newStream){
         float oldPos = getPos();
         playStream(newStream);

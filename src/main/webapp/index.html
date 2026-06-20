@@ -29,9 +29,9 @@
                 <option value="4320">8k</option>
             </select>
             <button class="playback-controls" id="prevButton"        onclick="prev()"       >Prev</button>
-            <button class="playback-controls" id="skipBackButton"    onclick="skipBack()"   >Seek back</button>
+            <button class="playback-controls" id="skipBackButton"    onclick="seekBack()"   >Seek back</button>
             <button class="playback-controls" id="pauseButton"       onclick="pause()"      >Pause</button>
-            <button class="playback-controls" id="skipForwardButton" onclick="skipForward()">Seek forward</button>
+            <button class="playback-controls" id="skipForwardButton" onclick="seekForward()">Seek forward</button>
             <button class="playback-controls" id="nextButton"        onclick="next()"       >Next</button>
             <button class="playback-controls" id="stopButton"        onclick="stop()"       >Stop</button>
             <button class="playback-controls" id="subsButton"        onclick="subs()"       >Subtitles off</button>
@@ -125,16 +125,11 @@
             reopenSocket();
 
             function enqueue(){
-                if(reopenSocket()){
-                    webSocket.send("enqueue" + sourceBox.value)
-                }
+                if(reopenSocket()){webSocket.send("enqueue" + sourceBox.value)}
             }
 
             function prev(){
-                if(reopenSocket()){
-                    webSocket.send("prev");
-                }
-                
+                if(reopenSocket()){webSocket.send("prev");}
             }
 
             function next(){
@@ -145,12 +140,12 @@
                 if(reopenSocket()){webSocket.send("stop");}
             }
 
-            function skipBack(){
-                if(reopenSocket()){webSocket.send("skipBack");}
+            function seekBack(){
+                if(reopenSocket()){webSocket.send("seekBack");}
             }
 
-            function skipForward(){
-                if(reopenSocket()){webSocket.send("skipForward");}
+            function seekForward(){
+                if(reopenSocket()){webSocket.send("seekForward");}
             }
 
             function skipTo(index){
@@ -168,7 +163,7 @@
             }
 
             function seek(){
-                if(reopenSocket()){webSocket.send("seek" + seekbar.value);}
+                if(reopenSocket()){webSocket.send("seekTo" + seekbar.value);}
             }
 
             function quality(){
