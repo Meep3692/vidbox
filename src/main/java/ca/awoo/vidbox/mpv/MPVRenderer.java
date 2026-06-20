@@ -73,6 +73,13 @@ public class MPVRenderer implements Renderer {
         return p.getString(0, "UTF-8");
     }
 
+    private void setProperty(String name, String value){
+        int err = mpv.mpv_set_property_string(handle, name, value);
+        if(err != 0){
+            throw new MpvException(err);
+        }
+    }
+
     private float getFloatProperty(String name){
         String propString = getProperty(name);
         if(propString == null) return 0;
@@ -121,6 +128,16 @@ public class MPVRenderer implements Renderer {
     @Override
     public boolean isPaused() {
         return getBoolProperty("pause");
+    }
+
+    @Override
+    public void pause() {
+        setProperty("pause", "yes");
+    }
+
+    @Override
+    public void resume() {
+        setProperty("pause", "no");
     }
 
     private final Event<Stream> onStreamEndEvent = new Event<>();

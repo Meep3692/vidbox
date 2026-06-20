@@ -11,6 +11,8 @@ public interface Renderer {
     public float getDuration();
     public boolean isIdle();
     public boolean isPaused();
+    public void pause();
+    public void resume();
     public default void swapStream(Stream newStream){
         float oldPos = getPos();
         playStream(newStream);
